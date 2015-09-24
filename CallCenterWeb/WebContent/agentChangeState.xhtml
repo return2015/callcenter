@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:c="http://java.sun.com/jstl/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:pr="http://primefaces.org/ui"
+	xmlns:jsf="http://xmlns.jcp.org/jsf">
+	
+	<ui:composition template="/templates/BasicTemplate.xhtml">
+
+		<ui:define name="metadata">
+		<f:metadata>
+			<f:viewAction action="#{agentChangeStateController.initialize}"/>
+			</f:metadata>
+		</ui:define>
+
+		<ui:define name="header-css">
+			<link href="resources/css/dashboard.css" rel="stylesheet" />
+		</ui:define>
+	
+		<ui:define name="content">
+		
+			<h1 class="page-header">Cambiar estado</h1>
+			
+			<h:messages id="messages" showDetail="true"></h:messages>
+			
+			<div class="col-sm-offset-2 col-sm-6 panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">Seleccione estado</h3>
+				</div>
+				<div class="panel-body">
+					<form jsf:id="form" class="form-horizontal" >
+						
+						<div class="form-group">
+							<label for="selectUserType" class="col-sm-2 control-label">Estado</label>
+							<div class="col-sm-10">
+								<select jsf:id="selectSessionType" required="required" size="1" jsf:value="#{agentChangeStateController.sessionTypeSelected}" class="form-control">
+									<f:selectItem itemValue="" itemLabel=""></f:selectItem>
+						        	<f:selectItems value="#{agentChangeStateController.sessionTypes}"></f:selectItems>
+								</select>
+							</div>			
+						</div>
+						
+						<div class="form-group">
+							<div class="col-sm-offset-2 col-sm-10">
+								<button jsf:action="#{agentChangeStateController.changeState}"
+									class="btn btn-primary" type="submit" aria-label="Left Align">
+									<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>  Cambiar estado
+								</button>
+							</div>
+						</div>			
+					</form>
+				</div>
+			</div>
+		</ui:define>	
+	</ui:composition>
+</html>

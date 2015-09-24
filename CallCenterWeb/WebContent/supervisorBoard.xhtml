@@ -1,0 +1,299 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:c="http://java.sun.com/jstl/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:pr="http://primefaces.org/ui"
+	xmlns:jsf="http://xmlns.jcp.org/jsf">
+	
+	<ui:composition template="/templates/BasicTemplate.xhtml">
+
+		<ui:define name="metadata">
+			<f:metadata>
+				<f:viewAction action="#{supervisorBoardController.initialize}"/>
+			</f:metadata>
+		</ui:define>
+
+		<ui:define name="header-css">
+			<link href="resources/css/dashboard.css" rel="stylesheet" />
+		</ui:define>
+	
+		<ui:define name="content">
+		
+			<h1 class="page-header">Tablero de supervisor</h1>
+			
+			<h:messages id="messages" showDetail="true"></h:messages>
+
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">
+						<a data-toggle="collapse" href="#collapseOne">
+          					Filtros de búsqueda
+        				</a>
+        			</h3>
+				</div>
+				<div id="collapseOne" class="panel-collapse collapse in">
+				<div class="panel-body">
+					<form jsf:id="form" class="form" >
+					
+							<div class="form-group">			
+								<label for="inputUsername" class="col-sm-1 control-label" >Usuario</label> 
+								<div class="col-sm-2">
+									<input
+										jsf:value="#{supervisorBoardController.username}" type="text" id="inputUsername"
+										class="form-control" placeholder="Ingrese usuario"  />
+								</div>	
+							</div>
+							
+							<div  class="form-group">
+								<label for="selectServer" jsf:rendered="#{supervisorBoardController.serverRendered}" class="col-sm-1 control-label">Servidor</label> 
+								<div class="col-sm-2" jsf:rendered="#{supervisorBoardController.serverRendered}">
+									<select jsf:id="selectServer" size="1" jsf:value="#{supervisorBoardController.serverSelected}" class="form-control">
+										<f:selectItem itemValue="" itemLabel="Seleccione servidor"></f:selectItem>
+							        	<f:selectItems value="#{supervisorBoardController.servers}"></f:selectItems>
+							        	<f:ajax event="change" execute=":form:selectServer" listener="#{supervisorBoardController.changeServer}" render=":form:divSelectCampaign :form:divSelectSupervisor"></f:ajax>
+									</select>
+								</div>			
+							</div>
+							
+							<div jsf:id="divSelectCampaign" class="form-group">
+								<label for="selectCampaign" class="col-sm-1 control-label">Campaña</label> 
+								<div class="col-sm-2">
+									<select jsf:id="selectCampaign" size="1" jsf:value="#{supervisorBoardController.campaignSelected}" class="form-control">
+										<f:selectItem itemValue="" itemLabel="Seleccione campaña"></f:selectItem>
+							        	<f:selectItems value="#{supervisorBoardController.campaigns}"></f:selectItems>
+							        	<f:ajax event="change" execute=":form:selectCampaign" listener="#{supervisorBoardController.changeCampaign}" render=":form:divSelectSupervisor"></f:ajax>
+									</select>
+								</div>			
+							</div>
+							
+							<div jsf:id="divSelectSupervisor" class="form-group">
+								<label for="selectSupervisor" class="col-sm-1 control-label">Supervisor</label>
+								<div class="col-sm-2">
+									<select jsf:id="selectSupervisor" size="1" jsf:value="#{supervisorBoardController.supervisorSelected}" class="form-control">
+										<f:selectItem itemValue="" itemLabel="Seleccione supervisor"></f:selectItem>
+							        	<f:selectItems value="#{supervisorBoardController.supervisors}"></f:selectItems>
+									</select>
+								</div>			
+							</div>
+							
+						
+						<div class="form-group">
+							<div class="col-sm-1">
+								<button id="buttonSearch" jsf:action="#{supervisorBoardController.search}"
+									class="btn btn-primary" type="submit" aria-label="Left Align">
+									<span class="glyphicon glyphicon-search" aria-hidden="true"></span>  Buscar
+								</button>
+							</div>
+						</div>			
+					</form>
+				</div>
+				</div>
+			</div>
+			<div class="row">
+				<form jsf:id="formTable">
+					<div jsf:id="divTable" class="col-sm-12">
+					
+					
+					
+						
+						<table id="tableUsers" data-toggle="table" data-pagination="false">
+							
+							<thead>
+								<tr>
+									<th data-field="id" data-sortable="true">
+										#
+									</th>
+									<th data-field="agentname" data-sortable="true">
+										Agente
+									</th>
+									<th data-field="username" data-sortable="true">
+										Usuario
+									</th>
+									<th data-field="supervisor" data-sortable="true" >
+										Supervisor
+									</th>
+									<th data-field="campaign" data-sortable="true">
+										Campañas
+									</th>
+									<th data-field="state" data-sortable="true" >
+										Estado
+									</th>
+									
+									<th data-field="duration" data-sortable="true" >
+										Duración
+									</th>
+									<th data-field="total" data-sortable="true" >
+										Total
+									</th>
+									
+									<th data-field="actions">
+										Acciones
+									</th>
+									
+								</tr>
+							</thead>
+							<tbody>
+								<ui:repeat var="usr" value="#{supervisorBoardController.users}">
+									<tr>
+										<td>
+										#{usr.id}
+										</td>
+										<td>
+										#{usr.firstname} #{usr.lastname}  
+										</td>
+										<td>
+										#{usr.username}
+										</td>
+										<td>
+										#{usr.supervisor.firstname} #{usr.supervisor.lastname}
+										</td>
+										<td>
+										#{usr.currentSession.currentSessionSessionType.campaignNames}
+										</td>
+										<td>
+										#{usr.currentSession.currentSessionSessionType.sessionType.name}
+										</td>
+										<td>
+										#{usr.currentSession.currentSessionSessionType.duration}
+										</td>
+										<td>
+										#{usr.currentSession.duration}
+										</td>
+										<td>
+											
+											<div class="row">
+											
+											<div class="col-sm-4">
+											
+												<button jsf:id="btnChangeStateUser" type="button" class="btn btn-primary" data-toggle="modal" data-target="#changeStateModal" title="Cambiar estado">
+													<span class="glyphicon glyphicon-edit" aria-hidden="true"/>
+													<f:ajax listener="#{supervisorBoardController.beforeChangeState(usr.id,usr.firstname)}" execute="@this" render=":messages :formTable:selectSessionType :formTable:myModalLabel"/>
+												</button>
+												
+											</div>
+											
+											<div class="col-sm-4">
+											
+												<button jsf:id="btnRestartUser" class="btn btn-success" type="button" data-toggle="tooltip" data-placement="top" title="Reiniciar">
+													<span class="glyphicon glyphicon-refresh" aria-hidden="true"/>
+													<f:ajax listener="#{supervisorBoardController.restartUser(usr.id)}" execute="@this" render=":messages" onevent="refreshTable"/>
+												</button>
+											</div>	
+											
+											<div class="col-sm-4">
+											
+												
+												
+												<button jsf:id="btnLogoutUser" class="btn btn-danger" type="button" data-toggle="tooltip" data-placement="left" title="Logout">
+													<span class="glyphicon glyphicon-off" aria-hidden="true"/>
+													<f:ajax listener="#{supervisorBoardController.logoutUser(usr.id)}" execute="@this" render=":messages" onevent="refreshTable"/>
+												</button>
+											</div>	
+											</div>	
+											
+										</td>
+									</tr>
+								</ui:repeat>
+							</tbody>
+						</table>
+					</div>
+						
+					<!-- Modal -->
+					<div class="modal fade" id="changeStateModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+					  <div class="modal-dialog">
+					    <div class="modal-content">
+					    
+					      <div class="modal-header">
+					        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					        <h4 class="modal-title" jsf:id="myModalLabel">Elegir estado para #{supervisorBoardController.name}</h4>
+					      </div>
+					      <div class="modal-body">
+					        <select jsf:id="selectSessionType" size="1" jsf:value="#{supervisorBoardController.sessionTypeSelected}" class="form-control">
+					        <f:selectItem itemValue="" itemLabel="Seleccione estado"></f:selectItem>
+					        <f:selectItems value="#{supervisorBoardController.sessionTypes}"></f:selectItems>
+							</select>
+					        
+					      </div>
+					      <div class="modal-footer">
+					        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+					        <button jsf:id="btnChangeSessionType" type="button" class="btn btn-primary" >Aceptar
+					        	<f:ajax listener="#{supervisorBoardController.changeState}" execute=":formTable:selectSessionType" render=":messages" onevent="handleAjaxSelectCampaign" />
+					        </button>
+					        
+					        
+					      </div>
+					      
+					    </div>
+					  </div>
+					</div>
+						
+						
+					
+				</form>
+			</div>
+		</ui:define>
+		<ui:define name="footer-script">
+		<script type="text/javascript">
+		$(function () {
+			  $('[data-toggle="tooltip"]').tooltip()
+			})
+		
+		function refreshTable(data) {
+		    var status = data.status;
+		
+		    switch(status) {
+		        case "begin":
+		            // This is invoked right before ajax request is sent.
+		            break;
+		
+		        case "complete":
+		            // This is invoked right after ajax response is returned.
+		            //alert('complete');
+		            //var tabla = $('#buttonSearch');
+		            //alert(tabla);
+		            $('#buttonSearch').click();
+		           // $('#tableUsers').bootstrapTable('refresh',{url:'/faces/supervisorBoard.xhtml'});
+		            //alert('complete');
+		            break;
+		
+		        case "success":
+		            // This is invoked right after successful processing of ajax response and update of HTML DOM.
+		            /*alert('success');
+		            $('#changeStateModal').modal('hide');
+		            alert('success');*/
+		            break;
+		    }
+		}
+		
+		function handleAjaxSelectCampaign(data) {
+		    var status = data.status;
+		
+		    switch(status) {
+		        case "begin":
+		            // This is invoked right before ajax request is sent.
+		            break;
+		
+		        case "complete":
+		            // This is invoked right after ajax response is returned.
+		            //alert('complete');
+		            $('#changeStateModal').modal('hide');
+		            $('#buttonSearch').click();
+		            //alert('complete');
+		            break;
+		
+		        case "success":
+		            // This is invoked right after successful processing of ajax response and update of HTML DOM.
+		            /*alert('success');
+		            $('#changeStateModal').modal('hide');
+		            alert('success');*/
+		            break;
+		    }
+		}	
+		</script>
+		</ui:define>
+	</ui:composition>
+</html>

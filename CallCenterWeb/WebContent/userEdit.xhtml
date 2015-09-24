@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:c="http://java.sun.com/jstl/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:pr="http://primefaces.org/ui"
+	xmlns:jsf="http://xmlns.jcp.org/jsf">
+	
+	<ui:composition template="/templates/BasicTemplate.xhtml">
+
+		<ui:define name="metadata">
+		<f:metadata>
+			<f:viewParam name="userId" value="#{userEditController.userId}"></f:viewParam>
+			<f:viewAction action="#{userEditController.initialize}"/>
+			</f:metadata>
+		</ui:define>
+
+		<ui:define name="header-css">
+			<link href="resources/css/dashboard.css" rel="stylesheet" />
+		</ui:define>
+	
+		<ui:define name="content">
+		
+			<h1 class="page-header">Usuarios</h1>
+			
+			<h:messages id="messages" showDetail="true"></h:messages>
+			
+			<div class="col-sm-offset-2 col-sm-6 panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">Editar usuario</h3>
+				</div>
+				<div class="panel-body">
+					<form jsf:id="form" class="form-horizontal" >
+						<div class="form-group">
+							<label for="inputFirstname" class="col-sm-2 control-label">Nombres</label> 
+							<div class="col-sm-10">
+								<input required="required"
+									jsf:value="#{userEditController.user.firstname}" type="text" id="inputFirstname"
+									class="form-control" placeholder="Ingrese nombres" />
+							</div>	
+						</div>
+						<div class="form-group">			
+							<label for="inputLastname" class="col-sm-2 control-label">Apellidos</label> 
+							<div class="col-sm-10">
+								<input required="required"
+									jsf:value="#{userEditController.user.lastname}" type="text" id="inputLastname"
+									class="form-control" placeholder="Ingrese apellidos"/>
+							</div>	
+						</div>
+						<div class="form-group">			
+							<label for="inputDocumentNumber" class="col-sm-2 control-label">N° de documento</label> 
+							<div class="col-sm-10">
+								<input required="required"
+									jsf:value="#{userEditController.user.documentNumber}" type="text" id="inputDocumentNumber"
+									class="form-control" placeholder="Ingrese N° de documento"/>
+							</div>	
+						</div>
+						<div class="form-group">			
+							<label for="inputUsername" class="col-sm-2 control-label" >Usuario</label> 
+							<div class="col-sm-10">
+								<input required="required"
+									jsf:value="#{userEditController.user.username}" type="text" id="inputUsername"
+									class="form-control" placeholder="Ingrese usuario"  />
+							</div>	
+						</div>
+						
+						<div class="form-group">			
+							<label for="inputPassword" class="col-sm-2 control-label" >Clave</label> 
+							<div class="col-sm-10">
+								<input required="required"
+									jsf:value="#{userEditController.user.password}" type="text" id="inputPassword"
+									class="form-control" placeholder="Ingrese Password"  />
+							</div>	
+						</div>
+						<div class="form-group">
+							<label for="selectUserType" class="col-sm-2 control-label">Tipo</label>
+							<div class="col-sm-10">
+								<select jsf:id="selectUserType" required="required" size="1" jsf:value="#{userEditController.userTypeSelected}" class="form-control">
+									<f:selectItem itemValue="" itemLabel=""></f:selectItem>
+						        	<f:selectItems value="#{userEditController.userTypes}"></f:selectItems>
+						        	<f:ajax event="change" execute=":form:selectUserType" listener="#{userEditController.changeUserType}" render=":messages :form:divSelectServer :form:divSelectCampaign :form:divSelectSessionType :form:divSelectSupervisor"></f:ajax>
+								</select>
+							</div>			
+						</div>
+						
+						<div jsf:id="divSelectServer"  class="form-group">
+							<label for="selectServer" jsf:rendered="#{userEditController.serverRendered}" class="col-sm-2 control-label">Servidor</label> 
+							<div class="col-sm-10" jsf:rendered="#{userEditController.serverRendered}">
+								<select jsf:id="selectServer" required="required" size="1" jsf:value="#{userEditController.serverSelected}" class="form-control">
+						        	<f:selectItem itemValue="" itemLabel="Seleccione servidor"></f:selectItem>
+						        	<f:selectItems value="#{userEditController.servers}"></f:selectItems>
+						        	<f:ajax event="change" execute=":form:selectServer" listener="#{userEditController.changeServer}" render=":messages :form:divSelectCampaign :form:divSelectSupervisor :form:divSelectSessionType"></f:ajax>
+								</select>
+							</div>
+						</div>
+						
+						<div jsf:id="divSelectCampaign"  class="form-group">
+							<label for="selectCampaign" jsf:rendered="#{userEditController.campaignRendered}" class="col-sm-2 control-label">Campañas</label> 
+							<div class="col-sm-10" jsf:rendered="#{userEditController.campaignRendered}">
+								<select jsf:id="selectCampaign" required="required" multiple="multiple" jsf:value="#{userEditController.campaignsSelected}" class="form-control">
+						        	<f:selectItems value="#{userEditController.campaigns}"></f:selectItems>
+						        	<f:ajax event="change" execute=":form:selectCampaign" listener="#{userEditController.changeCampaign}" render=":messages :form:divSelectSupervisor :form:divSelectSessionType"></f:ajax>
+								</select>
+							</div>
+						</div>
+						
+						<div jsf:id="divSelectSessionType"  class="form-group">
+							<label for="selectSessionType" jsf:rendered="#{userEditController.sessionTypeRendered}" class="col-sm-2 control-label">Sesión inicial</label> 
+							<div  class="col-sm-10" jsf:rendered="#{userEditController.sessionTypeRendered}" >
+								<select jsf:id="selectSessionType" required="required" size="1" jsf:value="#{userEditController.sessionTypeSelected}" class="form-control">
+									<f:selectItem itemValue="" itemLabel="Seleccione tipo de sesión"></f:selectItem>
+						        	<f:selectItems value="#{userEditController.sessionTypes}"></f:selectItems>
+								</select>
+							</div>
+						</div>
+						
+						<div jsf:id="divSelectSupervisor" class="form-group" >
+							<label for="selectSupervisor" jsf:rendered="#{userEditController.supervisorRendered}" class="col-sm-2 control-label">Supervisor</label>
+							<div class="col-sm-10" jsf:rendered="#{userEditController.supervisorRendered}">
+								<select jsf:id="selectSupervisor" size="1" jsf:value="#{userEditController.supervisorSelected}" class="form-control">
+									<f:selectItem itemValue="" itemLabel="Seleccione supervisor"></f:selectItem>
+						        	<f:selectItems value="#{userEditController.supervisors}"></f:selectItems>
+								</select>
+							</div>			
+						</div>
+						
+						<div class="form-group">
+					    	<div class="col-sm-offset-2 col-sm-10">
+					      		<div class="checkbox">
+					        		<label>
+					          			<input jsf:value="#{userEditController.user.isActive}" type="checkbox" id="inputIsActive"/> Habilitado
+					        		</label>
+				     			</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-sm-offset-2 col-sm-10">
+								<button jsf:action="#{userEditController.edit}"
+									class="btn btn-primary" type="submit" aria-label="Left Align">
+									<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>  Editar
+								</button>
+							</div>
+						</div>			
+					</form>
+				</div>
+			</div>
+		</ui:define>	
+	</ui:composition>
+</html>

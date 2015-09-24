@@ -1,0 +1,134 @@
+/*@CHARSET "ISO-8859-1";*/
+
+.ui-panelgrid tr {
+	
+}
+.ui-panelgrid td {
+    border-style: none !important;
+    /*padding: 0px !important;*/
+}
+
+.ui-widget{
+	font-size:0.9em;
+}
+.ui-widget-header{
+	/*background: none !important;*/
+}
+.ui-clock{
+	background: none;
+	border:none;
+	padding:0px !important;
+}
+
+.ui-state-default{
+	/*background: none !important;*/
+}
+
+.panelgridCustom{
+	padding: 0px !important;
+}
+
+
+.top{
+	/* Firefox 
+    display:-moz-box;
+    -moz-box-pack:center;
+    -moz-box-align:center;*/
+
+    /* Safari and Chrome 
+    display:-webkit-box;
+    -webkit-box-pack:center;
+    -webkit-box-align:center;*/
+
+    /* W3C 
+    display:box;
+    box-pack:center;
+    box-align:center;*/
+    
+    border: 1px solid silver;
+    width:600px;
+    margin: 0px auto;
+    
+}
+
+.phone{
+	    
+    border: 1px solid silver;
+    width:600px;
+    margin: 0px auto;
+    height: 60px;
+}
+
+.chat{
+    border: 1px solid silver;
+    width:200px;
+    margin: 0px auto;
+    height: 80px;
+    overflow:scroll;
+    font-size: smaller;
+}
+
+
+.content{
+	/*border: 1px solid silver;*/
+    width:500px;
+    margin: 0px auto;
+    
+}
+
+.bottom{
+
+    /*border: 1px solid silver;*/
+    width:500px;
+    margin: 0px auto;
+    /*height: 80px;*/
+}
+
+
+.error{
+	color:red;
+}
+
+.button_hangup {
+    background: white url('../resources/img/hangup_m.jpg') no-repeat left top !important;
+    width: 30px;
+    height: 30px;
+    text-align: right
+    
+}
+
+.button_hold {
+    background: white url('../resources/img/hold_m.jpg') no-repeat left top;
+    width: 150px;
+    height: 30px;
+    text-align: right
+}
+
+.button_unhold {
+    background: white url('../resources/img/unhold.jpg') no-repeat top;
+    width: 30px;
+    height: 30px;
+}
+
+.button_transfer {
+    background: white url('../resources/img/transfer_m.jpg') no-repeat left top;
+    width: 100px;
+    height: 30px;
+    text-align: right
+}
+
+
+.button_audio {
+    background: white url('../resources/img/headset.jpg') no-repeat left top !important;
+    width: 60px;
+    height: 60px;
+    text-align: right
+}
+
+.button_login {
+    background: white url('../resources/img/opendoor.jpg') no-repeat left top !important;
+    width: 50px;
+    height: 80px;
+    text-align: right
+}
+

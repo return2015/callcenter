@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:c="http://java.sun.com/jstl/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:pr="http://primefaces.org/ui"
+	xmlns:jsf="http://xmlns.jcp.org/jsf">
+	
+	<ui:composition template="/templates/BasicTemplate.xhtml">
+
+		<ui:define name="metadata">
+		<f:metadata>
+			<f:viewAction action="#{agentBoardController.initialize}"/>
+			</f:metadata>
+		</ui:define>
+
+		<ui:define name="header-css">
+			<link href="resources/css/dashboard.css" rel="stylesheet" />
+		</ui:define>
+	
+		<ui:define name="content">
+		
+			<h1 class="page-header">Tablero de agente</h1>
+			
+			<h:messages id="messages" showDetail="true"></h:messages>
+			
+			<div class="col-sm-6 panel panel-default">
+				<div class="panel-heading">
+					<h1 class="panel-header text-center">#{agentBoardController.agentInfo.sessionType} #{agentBoardController.agentInfo.sessionTypeTime}</h1>
+				</div>
+				<div class="panel-body">
+				
+				
+		
+					
+						<div class="col-md-12">
+							<div class="col-md-6">
+								<p class="lead">Campañas</p>
+							</div>
+							<div class="col-md-6">
+								<p class="lead">#{agentBoardController.agentInfo.campaignNames}</p>
+							</div>
+						</div>
+
+						
+							<div class="col-sm-12">
+								<div class="col-sm-6">
+									<p class="lead">Disponible</p>
+								</div>
+			
+								<div class="col-sm-6">
+									<p class="lead">#{agentBoardController.agentInfo.availableTime}</p>
+								</div>
+							</div>
+							
+							<div class="col-sm-12">
+								<div class="col-sm-6">
+									<p class="lead">Break</p>
+								</div>
+			
+								<div class="col-sm-6">
+									<p class="lead">#{agentBoardController.agentInfo.breakTime}</p>
+								</div>
+							</div>
+							
+							<div class="col-sm-12">
+								<div class="col-sm-6">
+									<p class="lead">Pausa</p>
+								</div>
+			
+								<div class="col-sm-6">
+									<p class="lead">#{agentBoardController.agentInfo.pauseTime}</p>
+								</div>
+							</div>
+						
+				
+						<div class="col-md-12">
+							<div class="col-md-6">
+								<p class="lead">Total</p>
+							</div>
+							<div class="col-md-6">
+								<p class="lead">#{agentBoardController.agentInfo.sessionTime}</p>
+							</div>
+						</div>
+				
+				</div>
+			</div>
+			
+			
+			<div class="col-sm-6 panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-header text-center">#{agentBoardController.agentInfo.callNumber} #{agentBoardController.agentInfo.callDurationTime}</h3>
+				</div>
+				<div class="panel-body">
+				
+					<div class="col-sm-12">
+						<div class="col-sm-6">
+							<p class="lead">Cola</p>
+						</div>
+						<div class="col-sm-6">
+							<p class="lead">#{agentBoardController.agentInfo.callQueue}</p>
+						</div>
+					</div>
+				
+					<div class="col-sm-12">
+						<div class="col-sm-6">
+							<p class="lead">Hold</p>
+						</div>
+						<div class="col-sm-6">
+							<p class="lead">#{agentBoardController.agentInfo.callHoldTime}</p>
+						</div>
+					</div>
+				
+					<div class="col-sm-12">
+						<div class="col-sm-6">
+							<p class="lead">Espera</p>
+						</div>
+						<div class="col-sm-6">
+							<p class="lead">#{agentBoardController.agentInfo.callWaitingTime}</p>
+						</div>
+					</div>
+				</div>
+			</div>	
+				
+				
+				
+				
+		</ui:define>
+		<ui:define name="footer-script">
+		<script type="text/javascript">
+			window.setTimeout(function(){ document.location.reload(true); }, 15000);
+		</script>
+		</ui:define>	
+	</ui:composition>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:c="http://java.sun.com/jstl/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:pr="http://primefaces.org/ui"
+	xmlns:jsf="http://xmlns.jcp.org/jsf">
+	
+	<ui:composition template="/templates/BasicTemplate.xhtml">
+	
+		<ui:define name="metadata">
+			<f:metadata>
+				<f:viewAction action="#{userSearchController.initialize}"/>
+			</f:metadata>	
+		</ui:define>
+
+		<ui:define name="header-css">
+			<link href="resources/css/dashboard.css" rel="stylesheet" />
+		</ui:define>
+	
+		<ui:define name="content">
+
+			<h1 class="page-header">Usuarios</h1>
+			
+			<h:messages id="messages" showDetail="true"></h:messages>
+
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">
+						<a data-toggle="collapse" href="#collapseOne">
+          					Filtros de búsqueda
+        				</a>
+        			</h3>
+				</div>
+				<div id="collapseOne" class="panel-collapse collapse in">
+				<div class="panel-body">
+					<form jsf:id="form" class="form-horizontal" >
+					
+						<div class="col-sm-6">
+						
+							<div class="form-group">
+								<label for="inputFirstname" class="col-sm-2 control-label">Nombres</label> 
+								<div class="col-sm-10">
+									<input
+										jsf:value="#{userSearchController.firstname}" type="text" id="inputFirstname"
+										class="form-control" placeholder="Ingrese nombres"/>
+								</div>	
+							</div>
+						
+							<div class="form-group">			
+								<label for="inputLastname" class="col-sm-2 control-label">Apellidos</label> 
+								<div class="col-sm-10">
+									<input
+										jsf:value="#{userSearchController.lastname}" type="text" id="inputLastname"
+										class="form-control" placeholder="Ingrese apellidos"/>
+								</div>	
+							</div>
+						
+							<div class="form-group">			
+								<label for="inputUsername" class="col-sm-2 control-label" >Usuario</label> 
+								<div class="col-sm-10">
+									<input
+										jsf:value="#{userSearchController.username}" type="text" id="inputUsername"
+										class="form-control" placeholder="Ingrese usuario"  />
+								</div>	
+							</div>
+							
+							
+							
+						</div>
+						
+						
+						<div class="col-sm-6">
+						
+							<div class="form-group">
+								<label for="selectUserType" class="col-sm-2 control-label">Tipo</label>
+								<div class="col-sm-10">
+									<select id="selectUserType" size="1" jsf:value="#{userSearchController.userTypeSelected}" class="form-control">
+										<f:selectItem itemValue="" itemLabel="Seleccione tipo de usuario"></f:selectItem>
+							        	<f:selectItems value="#{userSearchController.userTypes}"></f:selectItems>
+									</select>
+								</div>			
+							</div>
+						
+							<div jsf:id="divSelectCampaign" class="form-group">
+								<label for="selectCampaign" class="col-sm-2 control-label">Campaña</label> 
+								<div class="col-sm-10">
+									<select jsf:id="selectCampaign" size="1" jsf:value="#{userSearchController.campaignSelected}" class="form-control">
+										<f:selectItem itemValue="" itemLabel="Seleccione campaña"></f:selectItem>
+							        	<f:selectItems value="#{userSearchController.campaigns}"></f:selectItems>
+							        	<f:ajax event="change" execute=":form:selectCampaign" listener="#{userSearchController.changeCampaign}" render=":form:divSelectSupervisor"></f:ajax>
+									</select>
+								</div>			
+							</div>
+							
+							<div jsf:id="divSelectSupervisor" class="form-group">
+								<label for="selectSupervisor" class="col-sm-2 control-label">Supervisor</label>
+								<div class="col-sm-10">
+									<select jsf:id="selectSupervisor" size="1" jsf:value="#{userSearchController.supervisorSelected}" class="form-control">
+										<f:selectItem itemValue="" itemLabel="Seleccione supervisor"></f:selectItem>
+							        	<f:selectItems value="#{userSearchController.supervisors}"></f:selectItems>
+									</select>
+								</div>			
+							</div>
+							
+						</div>
+						<div class="form-group">
+							<div class="col-sm-offset-5 col-sm-2">
+								<button jsf:action="#{userSearchController.search}"
+									class="btn btn-primary" type="submit" aria-label="Left Align">
+									<span class="glyphicon glyphicon-search" aria-hidden="true"></span>  Buscar
+								</button>
+							</div>
+						</div>			
+					</form>
+				</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-12">
+					
+						<a class="btn btn-primary" href="userAdd.xhtml?faces-redirect=true" >
+							<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>  Agregar usuario
+						</a>
+						
+					
+					<br></br>
+					<br></br>
+					<table id="table-users" data-toggle="table" data-pagination="true">
+						
+						<thead>
+							<tr>
+								<th data-field="id" data-sortable="true">
+									#
+								</th>
+								<th data-field="firstname" data-sortable="true">
+									Nombres
+								</th>
+								<th data-field="lastname" data-sortable="true">
+									Apellidos
+								</th>
+								<th data-field="username" data-sortable="true">
+									Usuario
+								</th>
+								<th data-field="type" data-sortable="true">
+									Tipo
+								</th>
+								<th data-field="supervisor" data-sortable="true">
+									Supervisor
+								</th>
+								<th data-field="campaign" data-sortable="true">
+									Campañas
+								</th>
+								<th data-field="state2" data-sortable="true">
+									Estado
+								</th>
+								
+								<th>
+									Acciones
+								</th>
+								
+							</tr>
+						</thead>
+						<tbody>
+							<ui:repeat var="usr" value="#{userSearchController.users}">
+								<tr>
+									<td>
+									#{usr.id}
+									</td>
+									<td>
+									#{usr.firstname}
+									</td>
+									<td>
+									#{usr.lastname}
+									</td>
+									<td>
+									#{usr.username}
+									</td>
+									<td>
+									#{usr.userType.name}
+									</td>
+									<td>
+									#{usr.supervisor.firstname} #{usr.supervisor.lastname}
+									</td>
+									<td>
+									#{usr.campaignNames}
+									</td>
+									<td>
+									#{usr.state}
+									</td>
+									<td>
+										<a class="btn btn-primary" href="userEdit.xhtml?userId=#{usr.id}" >
+											<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>  Editar usuario
+										</a>
+									</td>
+								</tr>
+							</ui:repeat>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</ui:define>	
+	</ui:composition>
+</html>

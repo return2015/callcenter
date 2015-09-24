@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:c="http://java.sun.com/jstl/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:pr="http://primefaces.org/ui"
+	xmlns:jsf="http://xmlns.jcp.org/jsf">
+	
+	<ui:composition template="/templates/LoginTemplate.xhtml">
+	
+		<ui:define name="metadata">
+		<f:metadata>
+			<f:viewParam name="emSummary" value="#{loginController.emSummary}"></f:viewParam>
+			<f:viewParam name="emDetail" value="#{loginController.emDetail}"></f:viewParam>
+			<f:viewAction action="#{loginController.checkErrorMessage}"></f:viewAction>
+		</f:metadata>	
+		</ui:define>
+		
+<ui:define name="header-css">
+	<link href="resources/css/login.css" rel="stylesheet" />
+</ui:define>
+
+<ui:define name="content">
+	<div class="container">
+		
+		
+		<form jsf:id="form" class="form-signin">
+		<div class="text-center">
+				<h:messages id="messages" showDetail="true"></h:messages>
+			</div>
+			
+			<h2 class="form-signin-heading">Por favor, inicie...</h2>
+			<label for="inputUsername" class="sr-only">Usuario</label> 
+			<input
+				jsf:value="#{loginController.username}" type="text" id="inputUsername"
+				class="form-control" placeholder="Usuario" required="true" autofocus="autofocus" /> 
+			<label
+				for="inputPassword" class="sr-only">Contraseña</label> 
+			<input
+				jsf:value="#{loginController.password}" type="password"
+				id="inputPassword" class="form-control" placeholder="Contraseña"
+				required="true" />
+			<button jsf:action="#{loginController.doLogin}"
+				class="btn btn-lg btn-primary btn-block" type="submit">Ingresar
+				</button>
+				
+		</form>
+	
+	</div>
+	<!-- /container -->
+
+</ui:define>
+</ui:composition>
+</html>
