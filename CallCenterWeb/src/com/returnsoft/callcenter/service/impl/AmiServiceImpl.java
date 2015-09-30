@@ -145,27 +145,7 @@ public class AmiServiceImpl implements AmiService {
 				dos.writeBytes("\r\n");
 			}
 
-			
-			/*dos.writeBytes("Action: Logoff\r\n");
-			dos.writeBytes("\r\n");*/
-			
-			/*String line;
-			StringBuilder lines = new StringBuilder();
-
-			while ((line = br.readLine())!=null) {
-				lines.append(line+"|&|");
-			}*/
-			
 			socket.close();
-
-			/*System.out.println("---------LINES----------");
-			System.out.println("---------LINES----------");
-			System.out.println("---------LINES----------");
-			System.out.println(lines);
-			System.out.println("---------LINES----------");
-			System.out.println("---------LINES----------");
-			System.out.println("---------LINES----------");*/
-			//return sessionQueues;
 
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
@@ -178,7 +158,7 @@ public class AmiServiceImpl implements AmiService {
 			throw new AmiException(e);
 		}
 	}
-	
+	@Override
 	public void unpauseManyQueues(List<SessionQueue> sessionQueues, String peerName, Server pbxServer) throws AmiException {
 		
 		System.out.println("ingreso a unpauseManyQueues");
@@ -247,8 +227,146 @@ public class AmiServiceImpl implements AmiService {
 		}
 	}
 	
+	@Override
+	public void addManyQueues(List<SessionQueue> sessionQueues, String peerName, Server pbxServer, Boolean isPaused) throws AmiException {
+		
+		System.out.println("ingreso a addManyQueues");
+
+		try {
+			
+			Socket socket = new Socket(pbxServer.getHost(), pbxServer.getPort());
+			DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+			DataInputStream dis = new DataInputStream(socket.getInputStream());
+			BufferedReader br = new BufferedReader(new InputStreamReader(dis));
+			
+			System.out.println("logueandose a ami");
+			
+			dos.writeBytes("Action: Login\r\n");
+			dos.writeBytes("Username: " + pbxServer.getUsername() + "\r\n");
+			dos.writeBytes("Secret: " + pbxServer.getPassword() + "\r\n");
+			dos.writeBytes("Events: off \r\n");
+			dos.writeBytes("\r\n");
+
+			String line;
+			String loginResponse="";
+			while ((line = br.readLine()).length()>0) {
+				if (line.startsWith("Response")) {
+					loginResponse = line.substring(line.indexOf(":")+1).trim();
+				}
+			}
+			
+			if (loginResponse.equals("Success")) {
+				for (int i=0; i< sessionQueues.size();i++) {
+					SessionQueue sessionQueue = sessionQueues.get(i);
+					System.out.println("agregando cola:"+sessionQueue.getQueue().getName());
+					
+					dos.writeBytes("Action: QueueAdd\r\n");
+					dos.writeBytes("Queue: " + sessionQueue.getQueue().getName() + "\r\n");
+					dos.writeBytes("Interface: SIP/" + peerName + "\r\n");
+					dos.writeBytes("Paused: "+isPaused+"\r\n");
+					dos.writeBytes("Priority: 1\r\n");
+					dos.writeBytes("\r\n");
+					
+					String queueResponse;
+					while ((queueResponse = br.readLine()).length()>0) {
+						if (queueResponse.startsWith("Message")) {
+							queueResponse=queueResponse.substring(queueResponse.indexOf(":")+1).trim();
+							sessionQueue.setResponse(queueResponse);
+						}
+					}
+				}
+				System.out.println("deslogueando de AMI");
+				dos.writeBytes("Action: Logoff\r\n");
+				dos.writeBytes("\r\n");
+			}else{
+				dos.writeBytes("Action: Logoff\r\n");
+				dos.writeBytes("\r\n");
+			}
+
+			socket.close();
+
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+			throw new AmiException(e);
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new AmiException(e);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new AmiException(e);
+		}
+	}
 	
 	@Override
+	public void removeManyQueues(List<SessionQueue> sessionQueues, String peerName, Server pbxServer) throws AmiException {
+		
+		System.out.println("ingreso a removeManyQueues");
+
+		try {
+			
+			Socket socket = new Socket(pbxServer.getHost(), pbxServer.getPort());
+			DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+			DataInputStream dis = new DataInputStream(socket.getInputStream());
+			BufferedReader br = new BufferedReader(new InputStreamReader(dis));
+			
+			System.out.println("logueandose a ami");
+			
+			dos.writeBytes("Action: Login\r\n");
+			dos.writeBytes("Username: " + pbxServer.getUsername() + "\r\n");
+			dos.writeBytes("Secret: " + pbxServer.getPassword() + "\r\n");
+			dos.writeBytes("Events: off \r\n");
+			dos.writeBytes("\r\n");
+
+			String line;
+			String loginResponse="";
+			while ((line = br.readLine()).length()>0) {
+				if (line.startsWith("Response")) {
+					loginResponse = line.substring(line.indexOf(":")+1).trim();
+				}
+			}
+			
+			if (loginResponse.equals("Success")) {
+				for (int i=0; i< sessionQueues.size();i++) {
+					SessionQueue sessionQueue = sessionQueues.get(i);
+					System.out.println("removiendo cola:"+sessionQueue.getQueue().getName());
+					
+					dos.writeBytes("Action: QueueRemove\r\n");
+					dos.writeBytes("Queue: " + sessionQueue.getQueue().getName() + "\r\n");
+					dos.writeBytes("Interface: SIP/" + peerName + "\r\n");
+					dos.writeBytes("\r\n");
+					
+					
+					String queueResponse;
+					while ((queueResponse = br.readLine()).length()>0) {
+						if (queueResponse.startsWith("Message")) {
+							queueResponse=queueResponse.substring(queueResponse.indexOf(":")+1).trim();
+							sessionQueue.setResponse(queueResponse);
+						}
+					}
+				}
+				System.out.println("deslogueando de AMI");
+				dos.writeBytes("Action: Logoff\r\n");
+				dos.writeBytes("\r\n");
+			}else{
+				dos.writeBytes("Action: Logoff\r\n");
+				dos.writeBytes("\r\n");
+			}
+
+			socket.close();
+
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+			throw new AmiException(e);
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new AmiException(e);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new AmiException(e);
+		}
+	}
+	
+	//@Override
 	public String addQueue(String queueCode, String peerName, Server pbxServer, Boolean isPaused) throws AmiException {
 
 		try {
@@ -306,7 +424,7 @@ public class AmiServiceImpl implements AmiService {
 		
 
 	}
-	@Override
+	//@Override
 	public String removeQueue(String queueCode, String peerName, Server pbxServer) throws AmiException {
 		
 		try {
