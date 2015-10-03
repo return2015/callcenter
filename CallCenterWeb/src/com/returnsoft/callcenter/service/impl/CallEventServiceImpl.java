@@ -16,7 +16,7 @@ import com.returnsoft.callcenter.entity.CallEvent;
 import com.returnsoft.callcenter.entity.Queue;
 import com.returnsoft.callcenter.entity.SessionSessionType;
 import com.returnsoft.callcenter.entity.User;
-import com.returnsoft.callcenter.service.local.CallEventService;
+import com.returnsoft.callcenter.service.CallEventService;
 @Stateless
 public class CallEventServiceImpl implements CallEventService {
 	

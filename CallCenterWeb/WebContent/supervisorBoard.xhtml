@@ -97,7 +97,77 @@
 				<form jsf:id="formTable">
 					<div jsf:id="divTable" class="col-sm-12">
 					
-					
+						<h:dataTable id="tableUsers2" styleClass="table table-hover" value="#{supervisorBoardController.users}" var="usr">
+						
+							<h:column>
+								<f:facet name="header">#</f:facet>
+								#{usr.id}
+							</h:column>
+							
+							<h:column>
+								<f:facet name="header">Agente</f:facet>
+								#{usr.firstname} #{usr.lastname}  
+							</h:column>
+							
+							<h:column>
+								<f:facet name="header">Usuario</f:facet>
+								#{usr.username}
+							</h:column>
+							
+							<h:column>
+								<f:facet name="header">Supervisor</f:facet>
+								#{usr.supervisor.firstname} #{usr.supervisor.lastname}
+							</h:column>
+							<h:column>
+								<f:facet name="header">Campañas</f:facet>
+								#{usr.currentSession.currentSessionSessionType.campaignNames}
+							</h:column>
+							<h:column>
+								<f:facet name="header">Estado</f:facet>
+								#{usr.currentSession.currentSessionSessionType.sessionType.name}
+							</h:column>
+							<h:column>
+								<f:facet name="header">Duración</f:facet>
+								#{usr.currentSession.currentSessionSessionType.duration}
+							</h:column>
+							<h:column>
+								<f:facet name="header">Total</f:facet>
+								#{usr.currentSession.duration}
+							</h:column>
+							<h:column>
+								<f:facet name="header">Acciones</f:facet>
+								<div class="row">
+											
+											<div class="col-sm-4">
+											
+												<button jsf:id="btnChangeStateUser" type="button" class="btn btn-primary" data-toggle="modal" data-target="#changeStateModal" title="Cambiar estado">
+													<span class="glyphicon glyphicon-edit" aria-hidden="true"/>
+													<f:ajax listener="#{supervisorBoardController.beforeChangeState(usr.id,usr.firstname)}" execute="@this" render=":messages :formChangeState:selectSessionType :formChangeState:myModalLabel"/>
+												</button>
+												
+											</div>
+											
+											<div class="col-sm-4">
+											
+												<button jsf:id="btnRestartUser" class="btn btn-success" type="button" data-toggle="tooltip" data-placement="top" title="Reiniciar">
+													<span class="glyphicon glyphicon-refresh" aria-hidden="true"/>
+													<f:ajax listener="#{supervisorBoardController.restartUser(usr.id)}" execute="@this" render=":messages" onevent="refreshTable"/>
+												</button>
+											</div>	
+											
+											<div class="col-sm-4">
+											
+												
+												
+												<button jsf:id="btnLogoutUser" class="btn btn-danger" type="button" data-toggle="tooltip" data-placement="left" title="Logout">
+													<span class="glyphicon glyphicon-off" aria-hidden="true"/>
+													<f:ajax listener="#{supervisorBoardController.logoutUser(usr.id)}" execute="@this" render=":messages" onevent="refreshTable"/>
+												</button>
+											</div>	
+											</div>
+							</h:column>
+						
+						</h:dataTable>
 					
 						
 						<table id="tableUsers" data-toggle="table" data-pagination="false">
@@ -165,35 +235,7 @@
 										</td>
 										<td>
 											
-											<div class="row">
 											
-											<div class="col-sm-4">
-											
-												<button jsf:id="btnChangeStateUser" type="button" class="btn btn-primary" data-toggle="modal" data-target="#changeStateModal" title="Cambiar estado">
-													<span class="glyphicon glyphicon-edit" aria-hidden="true"/>
-													<f:ajax listener="#{supervisorBoardController.beforeChangeState(usr.id,usr.firstname)}" execute="@this" render=":messages :formTable:selectSessionType :formTable:myModalLabel"/>
-												</button>
-												
-											</div>
-											
-											<div class="col-sm-4">
-											
-												<button jsf:id="btnRestartUser" class="btn btn-success" type="button" data-toggle="tooltip" data-placement="top" title="Reiniciar">
-													<span class="glyphicon glyphicon-refresh" aria-hidden="true"/>
-													<f:ajax listener="#{supervisorBoardController.restartUser(usr.id)}" execute="@this" render=":messages" onevent="refreshTable"/>
-												</button>
-											</div>	
-											
-											<div class="col-sm-4">
-											
-												
-												
-												<button jsf:id="btnLogoutUser" class="btn btn-danger" type="button" data-toggle="tooltip" data-placement="left" title="Logout">
-													<span class="glyphicon glyphicon-off" aria-hidden="true"/>
-													<f:ajax listener="#{supervisorBoardController.logoutUser(usr.id)}" execute="@this" render=":messages" onevent="refreshTable"/>
-												</button>
-											</div>	
-											</div>	
 											
 										</td>
 									</tr>
@@ -201,8 +243,10 @@
 							</tbody>
 						</table>
 					</div>
+					</form>
 						
 					<!-- Modal -->
+					<form jsf:id="formChangeState">
 					<div class="modal fade" id="changeStateModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 					  <div class="modal-dialog">
 					    <div class="modal-content">
@@ -212,18 +256,21 @@
 					        <h4 class="modal-title" jsf:id="myModalLabel">Elegir estado para #{supervisorBoardController.name}</h4>
 					      </div>
 					      <div class="modal-body">
-					        <select jsf:id="selectSessionType" size="1" jsf:value="#{supervisorBoardController.sessionTypeSelected}" class="form-control">
-					        <f:selectItem itemValue="" itemLabel="Seleccione estado"></f:selectItem>
-					        <f:selectItems value="#{supervisorBoardController.sessionTypes}"></f:selectItems>
-							</select>
+					      
+					      	<h:messages id="changeStateMessage" showDetail="true"></h:messages>
+					        
+							<h:selectOneMenu id="selectSessionType" value="#{supervisorBoardController.sessionTypeSelected}" required="true" requiredMessage="Debe seleccionar estado" styleClass="form-control">
+								<f:selectItems value="#{supervisorBoardController.sessionTypes}"></f:selectItems>
+							</h:selectOneMenu>
 					        
 					      </div>
 					      <div class="modal-footer">
 					        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
-					        <button jsf:id="btnChangeSessionType" type="button" class="btn btn-primary" >Aceptar
-					        	<f:ajax listener="#{supervisorBoardController.changeState}" execute=":formTable:selectSessionType" render=":messages" onevent="handleAjaxSelectCampaign" />
-					        </button>
 					        
+					        <h:commandButton id="btnChangeSessionType" styleClass="btn btn-primary" 
+					        value="Aceptar" actionListener="#{supervisorBoardController.changeState}">
+					        	<f:ajax execute=":formChangeState" render=":formChangeState:changeStateMessage :formChangeState:myModalLabel :formTable:divTable :formTable:tableUsers2" />
+					        </h:commandButton>
 					        
 					      </div>
 					      
@@ -238,9 +285,11 @@
 		</ui:define>
 		<ui:define name="footer-script">
 		<script type="text/javascript">
+		
 		$(function () {
 			  $('[data-toggle="tooltip"]').tooltip()
-			})
+			});
+		
 		
 		function refreshTable(data) {
 		    var status = data.status;
@@ -270,9 +319,15 @@
 		}
 		
 		function handleAjaxSelectCampaign(data) {
-		    var status = data.status;
+			
+			/*console.log('handleAjaxSelectCampaign');
+		    console.log('status:'+data.status);
+		    console.log('type:'+data.type);*/
+		    console.log('validation:'+#{facesContext.validationFailed});
+		    //var status = data.status;
+		    
 		
-		    switch(status) {
+		   /* switch(status) {
 		        case "begin":
 		            // This is invoked right before ajax request is sent.
 		            break;
@@ -280,18 +335,18 @@
 		        case "complete":
 		            // This is invoked right after ajax response is returned.
 		            //alert('complete');
-		            $('#changeStateModal').modal('hide');
-		            $('#buttonSearch').click();
+		            /////$('#changeStateModal').modal('hide');
+		           // $('#buttonSearch').click();
 		            //alert('complete');
 		            break;
 		
 		        case "success":
 		            // This is invoked right after successful processing of ajax response and update of HTML DOM.
-		            /*alert('success');
-		            $('#changeStateModal').modal('hide');
-		            alert('success');*/
+		            //alert('success');
+		            //$('#changeStateModal').modal('hide');
+		            //alert('success');
 		            break;
-		    }
+		    }*/
 		}	
 		</script>
 		</ui:define>

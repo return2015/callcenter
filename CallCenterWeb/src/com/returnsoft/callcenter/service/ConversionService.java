@@ -1,4 +1,4 @@
-package com.returnsoft.callcenter.service.local;
+package com.returnsoft.callcenter.service;
 
 import com.returnsoft.callcenter.dto.CampaignDto;
 import com.returnsoft.callcenter.dto.ServerDto;

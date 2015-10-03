@@ -18,7 +18,7 @@ import com.returnsoft.callcenter.entity.SessionSessionType;
 import com.returnsoft.callcenter.entity.User;
 import com.returnsoft.callcenter.enumeration.SessionTypeEnum;
 import com.returnsoft.callcenter.exception.ConversionException;
-import com.returnsoft.callcenter.service.local.ConversionService;
+import com.returnsoft.callcenter.service.ConversionService;
 
 @Stateless
 public class ConversionServiceImpl implements ConversionService {

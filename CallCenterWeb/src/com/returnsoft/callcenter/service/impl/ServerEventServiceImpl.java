@@ -18,12 +18,12 @@ import com.returnsoft.callcenter.eao.ServerEao;
 import com.returnsoft.callcenter.entity.Server;
 import com.returnsoft.callcenter.exception.AmiException;
 import com.returnsoft.callcenter.exception.EaoException;
-import com.returnsoft.callcenter.service.local.AmiService;
-import com.returnsoft.callcenter.service.remote.ServerEventService;
+import com.returnsoft.callcenter.service.AmiService;
+import com.returnsoft.callcenter.service.ServerEventService;
 
 //@Startup
-@Singleton
-@Remote(ServerEventService.class)
+//@Singleton
+//@Remote(ServerEventService.class)
 public class ServerEventServiceImpl implements ServerEventService{
 	
 	@EJB

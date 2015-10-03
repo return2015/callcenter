@@ -18,7 +18,7 @@ import com.returnsoft.callcenter.enumeration.UserTypeEnum;
 import com.returnsoft.callcenter.exception.UserLoggedNotFoundException;
 import com.returnsoft.callcenter.exception.UserNotFoundException;
 import com.returnsoft.callcenter.exception.UserPermissionNotFoundException;
-import com.returnsoft.callcenter.service.remote.UserService;
+import com.returnsoft.callcenter.service.UserService;
 import com.returnsoft.callcenter.util.FacesUtil;
 @ManagedBean
 @ViewScoped

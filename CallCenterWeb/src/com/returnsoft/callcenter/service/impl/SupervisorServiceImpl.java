@@ -14,11 +14,11 @@ import com.returnsoft.callcenter.enumeration.UserTypeEnum;
 import com.returnsoft.callcenter.exception.ServiceException;
 import com.returnsoft.callcenter.exception.UserCampaignNotFoundException;
 import com.returnsoft.callcenter.exception.UserNotFoundException;
-import com.returnsoft.callcenter.service.local.ConversionService;
-import com.returnsoft.callcenter.service.remote.SupervisorService;
+import com.returnsoft.callcenter.service.ConversionService;
+import com.returnsoft.callcenter.service.SupervisorService;
 
 @Stateless
-@Remote(SupervisorService.class)
+//@Remote(SupervisorService.class)
 public class SupervisorServiceImpl implements SupervisorService {
 
 	@EJB

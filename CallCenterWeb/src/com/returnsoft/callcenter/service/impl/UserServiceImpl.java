@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.ejb.EJB;
-import javax.ejb.Remote;
 import javax.ejb.Stateless;
 
 import com.returnsoft.callcenter.dto.CampaignDto;
@@ -31,12 +30,12 @@ import com.returnsoft.callcenter.exception.UserDuplicateException;
 import com.returnsoft.callcenter.exception.UserInactiveException;
 import com.returnsoft.callcenter.exception.UserNotFoundException;
 import com.returnsoft.callcenter.exception.UserWrongPasswordException;
-import com.returnsoft.callcenter.service.local.AmiService;
-import com.returnsoft.callcenter.service.local.ConversionService;
-import com.returnsoft.callcenter.service.remote.UserService;
+import com.returnsoft.callcenter.service.AmiService;
+import com.returnsoft.callcenter.service.ConversionService;
+import com.returnsoft.callcenter.service.UserService;
 
 @Stateless
-@Remote(UserService.class)
+//@Remote(UserService.class)
 public class UserServiceImpl implements UserService {
 	
 	@EJB

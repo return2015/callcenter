@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.List;
 
 import javax.ejb.EJB;
-import javax.ejb.Remote;
 import javax.ejb.Stateless;
 
 import com.returnsoft.callcenter.dto.AgentInfoDto;
@@ -35,13 +34,12 @@ import com.returnsoft.callcenter.exception.SessionTypeInvalidException;
 import com.returnsoft.callcenter.exception.UserCampaignNotFoundException;
 import com.returnsoft.callcenter.exception.UserNotFoundException;
 import com.returnsoft.callcenter.exception.UserSessionTypeNotFoundException;
-import com.returnsoft.callcenter.service.local.AmiService;
-import com.returnsoft.callcenter.service.local.ConversionService;
-import com.returnsoft.callcenter.service.remote.AgentService;
-//import com.returnsoft.callcenter.dto.SessionTypeDto;
+import com.returnsoft.callcenter.service.AgentService;
+import com.returnsoft.callcenter.service.AmiService;
+import com.returnsoft.callcenter.service.ConversionService;
 
 @Stateless
-@Remote(AgentService.class)
+//@Remote(AgentService.class)
 public class AgentServiceImpl implements AgentService {
 
 	@EJB
@@ -266,52 +264,47 @@ public class AgentServiceImpl implements AgentService {
 			
 			// VERIFICA QUE EL USUARIO TENGA UNA SESION ACTIVA
 			System.out.println("VERIFICA QUE EL USUARIO TENGA UNA SESION ACTIVA");
-			String host = "";
-			Short peer = null;
-			if (user.getCurrentSession() != null 
-					&& user.getCurrentSession().getCurrentSessionSessionType()!=null) {
-				host=user.getCurrentSession().getCurrentSessionSessionType().getHost();
-				peer=user.getCurrentSession().getCurrentSessionSessionType().getPeer();
-			}else{
+			if (user.getCurrentSession() == null) {
 				throw new SessionNoActiveException();
 			}
 			
 			///////////////////////////////////////////////////////////////////////////
 			
-			
 			Date currentDate = new Date();
-			// SE CIERRA LA SESION POR TIPO DE SESION - NO
-			System.out.println("SE CIERRA LA SESION POR TIPO DE SESION");
-			user.getCurrentSession().getCurrentSessionSessionType().setEndedAt(currentDate);
-			sessionSessionTypeEao.update(user.getCurrentSession().getCurrentSessionSessionType());
-			
-			// SE ACTUALIZA EL 'TIPO DE SESION' DE LA 'SESION'
-			/*System.out.println("SE ACTUALIZA EL 'TIPO DE SESION' DE LA 'SESION'");
-			user.getCurrentSession().setCurrentSessionSessionType(null);
-			sessionEao.update(user.getCurrentSession());*/
-					
-			// SE CREA LA SESION POR TIPO DE SESION - SI
-			System.out.println("SE CREA LA SESION POR TIPO DE SESION");
-			SessionSessionType newSessionSessionType = new SessionSessionType();
-			newSessionSessionType.setSession(user.getCurrentSession());
-			newSessionSessionType.setSessionType(sessionTypeEnum);
-			newSessionSessionType.setStartedAt(currentDate);
-			newSessionSessionType.setHost(host);
-			newSessionSessionType.setPeer(peer);
-			sessionSessionTypeEao.add(newSessionSessionType);
-			
-			// SE CREAN LAS SESIONES POR CAMPAÑA - SI
-			System.out.println("SE CREAN LAS SESIONES POR CAMPAÑA");
-			newSessionSessionType.setSessionsCampaign(new ArrayList<SessionCampaign>());
-			for (SessionCampaign sessionCampaign : user.getCurrentSession().getCurrentSessionSessionType().getSessionsCampaign()) {
-				SessionCampaign newSessionCampaign = new SessionCampaign();
-				newSessionCampaign.setSessionSessionType(newSessionSessionType);
-				newSessionCampaign.setCampaign(sessionCampaign.getCampaign());
-				sessionCampaignEao.add(newSessionCampaign);
-				// SE CREAN SESIONES POR COLA
-				System.out.println("SE CREAN SESIONES POR COLA");
+						
+			if (user.getCurrentSession().getCurrentSessionSessionType()!=null) {
 				
-				if (sessionCampaign.getSessionsQueue().size() > 0) {
+				SessionSessionType currentSessionSessionType = user.getCurrentSession().getCurrentSessionSessionType();
+				
+				//SE CIERRA ESTADO ACTUAL
+				currentSessionSessionType.setEndedAt(currentDate);
+				currentSessionSessionType = sessionSessionTypeEao.update(currentSessionSessionType);
+				
+				// SE CREA NUEVO ESTADO
+				System.out.println("SE CREA LA SESION POR TIPO DE SESION");
+				SessionSessionType newSessionSessionType = new SessionSessionType();
+				newSessionSessionType.setSession(user.getCurrentSession());
+				newSessionSessionType.setSessionType(sessionTypeEnum);
+				newSessionSessionType.setStartedAt(currentDate);
+				newSessionSessionType.setHost(user.getCurrentSession().getCurrentSessionSessionType().getHost());
+				newSessionSessionType.setPeer(user.getCurrentSession().getCurrentSessionSessionType().getPeer());
+				sessionSessionTypeEao.add(newSessionSessionType);
+				
+				// SE ACTUALIZA SESION CON NUEVO ESTADO
+				System.out.println("SE ACTUALIZA EL 'TIPO DE SESION' DE LA 'SESION'");
+				user.getCurrentSession().setCurrentSessionSessionType(newSessionSessionType);
+				sessionEao.update(user.getCurrentSession());
+				
+				// SE CREAN LAS SESIONES POR CAMPAÑA - SI
+				System.out.println("SE CREAN LAS SESIONES POR CAMPAÑA");
+				newSessionSessionType.setSessionsCampaign(new ArrayList<SessionCampaign>());
+				for (SessionCampaign sessionCampaign : currentSessionSessionType.getSessionsCampaign()) {
+					SessionCampaign newSessionCampaign = new SessionCampaign();
+					newSessionCampaign.setSessionSessionType(newSessionSessionType);
+					newSessionCampaign.setCampaign(sessionCampaign.getCampaign());
+					sessionCampaignEao.add(newSessionCampaign);
+					// SE CREAN SESIONES POR COLA
+					System.out.println("SE CREAN SESIONES POR COLA");
 					newSessionCampaign.setSessionsQueue(new ArrayList<SessionQueue>());
 					for (SessionQueue sessionQueue : sessionCampaign.getSessionsQueue()) {
 						SessionQueue newSessionQueue = new SessionQueue();
@@ -320,36 +313,30 @@ public class AgentServiceImpl implements AgentService {
 						sessionQueueEao.add(newSessionQueue);
 						newSessionCampaign.getSessionsQueue().add(newSessionQueue);
 					}
-				}
-				newSessionSessionType.getSessionsCampaign().add(newSessionCampaign);
-			}
-			
-			// SE ACTUALIZA EL 'TIPO DE SESION' DE LA 'SESION'
-			System.out.println("SE ACTUALIZA EL 'TIPO DE SESION' DE LA 'SESION'");
-			user.getCurrentSession().setCurrentSessionSessionType(newSessionSessionType);
-			sessionEao.update(user.getCurrentSession());
-			
-			//SE CAMBIAN LOS ANEXOS EN LAS COLAS
-			System.out.println("SE CAMBIAN LOS ANEXOS EN LAS COLAS");
-			for (SessionCampaign sessionCampaign : user.getCurrentSession().getCurrentSessionSessionType()
-					.getSessionsCampaign()) {
-				
-				switch (sessionTypeEnum) {
-				case PAUSE:
-					amiService.pauseManyQueues(sessionCampaign.getSessionsQueue(), peer.toString(), sessionCampaign.getCampaign().getServer());
-					break;
-				case BREAK:
-					amiService.pauseManyQueues(sessionCampaign.getSessionsQueue(), peer.toString(), sessionCampaign.getCampaign().getServer());
-					break;
-				case AVAILABLE:
-					amiService.unpauseManyQueues(sessionCampaign.getSessionsQueue(), peer.toString(), sessionCampaign.getCampaign().getServer());
-					break;	
-
-				default:
-					break;
+					newSessionSessionType.getSessionsCampaign().add(newSessionCampaign);
 				}
 				
+				;
+				
+				//SE PAUSAN LOS ANEXOS EN LAS COLAS
+				System.out.println("SE CAMBIAN LOS ANEXOS EN LAS COLAS");
+				for (SessionCampaign sessionCampaign : user.getCurrentSession().getCurrentSessionSessionType()
+						.getSessionsCampaign()) {
+					if (sessionTypeEnum.equals(SessionTypeEnum.AVAILABLE)) {
+						amiService.unpauseManyQueues(sessionCampaign.getSessionsQueue(), user.getCurrentSession().getCurrentSessionSessionType().getPeer().toString(), sessionCampaign.getCampaign().getServer());
+					}else{
+						amiService.pauseManyQueues(sessionCampaign.getSessionsQueue(), user.getCurrentSession().getCurrentSessionSessionType().getPeer().toString(), sessionCampaign.getCampaign().getServer());
+					}
+				}
+				
+				
+			}else{
+				//CERRAR SESION
+				closeSessions(user);
 			}
+				
+			
+			
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -399,86 +386,25 @@ public class AgentServiceImpl implements AgentService {
 			
 			// VERIFICA SI LA SESIÓN EXISTE
 			if (user.getCurrentSession() == null) {
-				//if (user.getCurrentSession().getCurrentSessionSessionType()!=null) {
-					//if (!user.getCurrentSession().getCurrentSessionSessionType().getHost().equals(host)) {
-						
-						// VERIFICA SI EXISTEN SESIONES ABIERTAS EN EL HOST
-						List<Session> sessions = sessionEao.findOpenSessionByHost(host);
-						if (sessions!=null && sessions.size()>0) {
-							for (Session session : sessions) {
-								throw new SessionActiveException(host,session.getUser().getUsername());
-							}
-						}
-						
-						/////////////////////////////////////////////////////////////////////////////
-						Date currentDate = new Date();
-						
-						// SE CREA LA NUEVA SESION
-						Session newSession = new Session();
-						newSession.setUser(user);
-						newSession.setStartedAt(currentDate);
-						sessionEao.add(newSession);
-						
-						// SE CREA LA SESION X TIPO DE SESION
-						SessionSessionType newSessionSessionType = new SessionSessionType();
-						newSessionSessionType.setSession(newSession);
-						newSessionSessionType.setSessionType(user.getSessionType());
-						newSessionSessionType.setStartedAt(currentDate);
-						newSessionSessionType.setHost(host);
-						newSessionSessionType.setPeer(Short.parseShort(peerName));
-						sessionSessionTypeEao.add(newSessionSessionType);
-						
-						// SE CREAN LAS SESIONES POR CAMPAÑA
-						newSessionSessionType.setSessionsCampaign(new ArrayList<SessionCampaign>());
-						for (Campaign campaign : user.getCampaigns()) {
-							SessionCampaign newSessionCampaign = new SessionCampaign();
-							newSessionCampaign.setSessionSessionType(newSessionSessionType);
-							newSessionCampaign.setCampaign(campaign);
-							sessionCampaignEao.add(newSessionCampaign);
-							// SE CREAN SESIONES POR COLA
-							if (campaign.getQueues().size() > 0) {
-								newSessionCampaign.setSessionsQueue(new ArrayList<SessionQueue>());
-								for (Queue queue : campaign.getQueues()) {
-									SessionQueue newSessionQueue = new SessionQueue();
-									newSessionQueue.setQueue(queue);
-									newSessionQueue.setSessionCampaign(newSessionCampaign);
-									sessionQueueEao.add(newSessionQueue);
-									newSessionCampaign.getSessionsQueue().add(newSessionQueue);
-								}
-							}
-							newSessionSessionType.getSessionsCampaign().add(newSessionCampaign);
-							
-						}
-						//newSession.setSessionsSessionType(new ArrayList<SessionSessionType>());
-						//newSession.getSessionsSessionType().add(newSessionSessionType);
-						
-						//SE ACTUALIZA EL 'TIPO DE SESION' ACTUAL EN LA 'SESION'
-						newSession.setCurrentSessionSessionType(newSessionSessionType);
-						
-						// SE ACTUALIZA LA 'SESION' DEL 'USUARIO'
-						user.setCurrentSession(newSession);
-						user = userEao.update(user);
-						
-						// SE AGREGAN LOS ANEXOS A LAS COLAS
-						for (SessionCampaign sessionCampaign : newSession.getCurrentSessionSessionType()
-								.getSessionsCampaign()) {
-							amiService.addManyQueues(sessionCampaign.getSessionsQueue(), peerName, sessionCampaign.getCampaign().getServer(),user.getSessionType().getIsPaused());
-						}
-					/*}else{
-						logoutAgent(userId);
-					}	*/
-				//}
+				//CREA LA SESION
+				openSessions(user, host, peerName);
 			}else{
+				//VERIFICA SI EL ESTADO EXISTE
 				if (user.getCurrentSession().getCurrentSessionSessionType()!=null) {
+					//VERIFICA SI ES EL MISMO HOST
 					if (!user.getCurrentSession().getCurrentSessionSessionType().getHost().equals(host)){
-						logoutAgent(userId);
-						//CREAR NUEVA SESION
-					}else{
-						//CONTINUE...
+						//REALIZA LOGOUT
+						closeSessions(user);
+						//CREA SESION
+						openSessions(user, host, peerName);
 					}
 				}else{
-					//ERROR...
-					//CERRAR SESION SIN ESTADO
+					
+					//REALIZA LOGOUT
+					closeSessions(user);
+					//CREA SESION
+					openSessions(user, host, peerName);
+					
 				}
 				
 			}
@@ -495,6 +421,124 @@ public class AgentServiceImpl implements AgentService {
 		}
 
 	}
+	
+	
+	
+	public void openSessions(User user, String host, String peer) throws ServiceException{
+		
+		try {
+			
+		
+		// VERIFICA SI EXISTEN SESIONES ABIERTAS EN EL HOST
+		List<Session> sessions = sessionEao.findOpenSessionByHost(host);
+		if (sessions!=null && sessions.size()>0) {
+			for (Session session : sessions) {
+				throw new SessionActiveException(host,session.getUser().getUsername());
+			}
+		}
+		
+		/////////////////////////////////////////////////////////////////////////////
+		Date currentDate = new Date();
+		
+		// SE CREA LA NUEVA SESION
+		Session newSession = new Session();
+		newSession.setUser(user);
+		newSession.setStartedAt(currentDate);
+		sessionEao.add(newSession);
+		
+		// SE ACTUALIZA LA NUEVA SESION DEL USUARIO
+		user.setCurrentSession(newSession);
+		user = userEao.update(user);
+		
+		// SE CREA EL NUEVO ESTADO
+		SessionSessionType newSessionSessionType = new SessionSessionType();
+		newSessionSessionType.setSession(newSession);
+		newSessionSessionType.setSessionType(user.getSessionType());
+		newSessionSessionType.setStartedAt(currentDate);
+		newSessionSessionType.setHost(host);
+		newSessionSessionType.setPeer(Short.parseShort(peer));
+		sessionSessionTypeEao.add(newSessionSessionType);
+		
+		//SE ACTUALIZA EL NUEVO ESTADO DE LA SESION
+		newSession.setCurrentSessionSessionType(newSessionSessionType);
+		
+		// SE CREAN LAS SESIONES POR CAMPAÑA
+		newSessionSessionType.setSessionsCampaign(new ArrayList<SessionCampaign>());
+		for (Campaign campaign : user.getCampaigns()) {
+			SessionCampaign newSessionCampaign = new SessionCampaign();
+			newSessionCampaign.setSessionSessionType(newSessionSessionType);
+			newSessionCampaign.setCampaign(campaign);
+			sessionCampaignEao.add(newSessionCampaign);
+			// SE CREAN SESIONES POR COLA
+			if (campaign.getQueues().size() > 0) {
+				newSessionCampaign.setSessionsQueue(new ArrayList<SessionQueue>());
+				for (Queue queue : campaign.getQueues()) {
+					SessionQueue newSessionQueue = new SessionQueue();
+					newSessionQueue.setQueue(queue);
+					newSessionQueue.setSessionCampaign(newSessionCampaign);
+					sessionQueueEao.add(newSessionQueue);
+					newSessionCampaign.getSessionsQueue().add(newSessionQueue);
+				}
+			}
+			newSessionSessionType.getSessionsCampaign().add(newSessionCampaign);
+			
+		}
+				
+		// SE AGREGAN LOS ANEXOS A LAS COLAS
+		for (SessionCampaign sessionCampaign : newSession.getCurrentSessionSessionType()
+				.getSessionsCampaign()) {
+			amiService.addManyQueues(sessionCampaign.getSessionsQueue(), peer, sessionCampaign.getCampaign().getServer(),user.getSessionType().getIsPaused());
+		}
+		
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
+				throw new ServiceException(e.getMessage(), e);	
+			}else{
+				throw new ServiceException();
+			}
+		}
+		
+	}
+	
+	public void closeSessions(User user) throws ServiceException{
+		try {
+			
+			Date currentDate=new Date();
+			
+			// SE CIERRA LA SESION ACTUAL
+			Session currentSession = user.getCurrentSession();
+			currentSession.setEndedAt(currentDate);
+			currentSession = sessionEao.update(currentSession);
+			
+			//SE ACTUALIZA USUARIO CON SESION VACIA
+			user.setCurrentSession(null);
+			userEao.update(user);
+			
+			//SE BUSCA ESTADO ACTUAL
+			if (currentSession.getCurrentSessionSessionType() != null) {
+				//CIERRA ESTADO ACTUAL
+				currentSession.getCurrentSessionSessionType().setEndedAt(currentDate);
+				sessionSessionTypeEao.update(currentSession.getCurrentSessionSessionType());
+				// SE ELIMINA ANEXO DE LAS COLAS
+				Short peerName = currentSession.getCurrentSessionSessionType().getPeer();
+				for (SessionCampaign sessionCampaign : currentSession.getCurrentSessionSessionType().getSessionsCampaign()) {
+					amiService.removeManyQueues(sessionCampaign.getSessionsQueue(), peerName.toString(), sessionCampaign.getCampaign().getServer());
+				}
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
+				throw new ServiceException(e.getMessage(), e);	
+			}else{
+				throw new ServiceException();
+			}
+		}
+		
+	}
+
+
 
 	@Override
 	public void logoutAgent(int userId) throws ServiceException {
@@ -507,31 +551,11 @@ public class AgentServiceImpl implements AgentService {
 				throw new UserNotFoundException();
 			}
 
-			Date currentDate = new Date();
-
-			// SE CIERRA LA SESION ACTUAL
+			// SE BUSCA SESION ACTUAL
 			if (user.getCurrentSession() != null) {
-				Short peerName = user.getCurrentSession().getCurrentSessionSessionType().getPeer();
-				// SE ELIMINA ANEXO DE LAS COLAS
-				for (SessionCampaign sessionCampaign : user.getCurrentSession().getCurrentSessionSessionType().getSessionsCampaign()) {
-					amiService.removeManyQueues(sessionCampaign.getSessionsQueue(), peerName.toString(), sessionCampaign.getCampaign().getServer());
-				}
 				
-				// SE CIERRA LA SESION POR TIPO DE SESION
-				if (user.getCurrentSession().getCurrentSessionSessionType()!=null) {
-					user.getCurrentSession().getCurrentSessionSessionType().setEndedAt(currentDate);
-					sessionSessionTypeEao.update(user.getCurrentSession().getCurrentSessionSessionType());
-				}
+				closeSessions(user);
 				
-				// SE CIERRA LA SESION
-				user.getCurrentSession().setEndedAt(currentDate);
-				user.getCurrentSession().setCurrentSessionSessionType(null);
-				sessionEao.update(user.getCurrentSession());
-
-				// SE ACTUALIZA LA 'SESION' DEL 'USUARIO'
-				user.setCurrentSession(null);
-				userEao.update(user);
-
 			} else {
 				throw new SessionNoActiveException();
 			}
@@ -588,18 +612,8 @@ public class AgentServiceImpl implements AgentService {
 			
 			// SE ELIMINA ANEXO DE LAS COLAS
 			for (SessionCampaign sessionCampaign : user.getCurrentSession().getCurrentSessionSessionType().getSessionsCampaign()) {
-				/*for (SessionQueue sessionQueue : sessionCampaign.getSessionsQueue()) {
-					Short peerName = user.getCurrentSession().getCurrentSessionSessionType().getPeer();
-					String response = amiService.removeQueue(sessionQueue.getQueue()
-							.getName(), peerName.toString(), sessionCampaign
-							.getCampaign().getServer());
-					sessionQueue.setResponse(response);
-					sessionQueueEao.update(sessionQueue);
-				}*/
-				
 				amiService.removeManyQueues(sessionCampaign.getSessionsQueue(), peer.toString(), sessionCampaign.getCampaign().getServer());
 			}
-						
 			
 			// SE CIERRA LA SESION POR TIPO DE SESION 
 			user.getCurrentSession().getCurrentSessionSessionType().setEndedAt(new Date());
@@ -617,7 +631,6 @@ public class AgentServiceImpl implements AgentService {
 			newSessionSessionType.setHost(host);
 			newSessionSessionType.setPeer(peer);
 			sessionSessionTypeEao.add(newSessionSessionType);
-			
 			
 			// SE CREAN LAS SESIONES POR CAMPAÑA
 			newSessionSessionType.setSessionsCampaign(new ArrayList<SessionCampaign>());
@@ -645,25 +658,9 @@ public class AgentServiceImpl implements AgentService {
 			user.getCurrentSession().setCurrentSessionSessionType(newSessionSessionType);
 			sessionEao.update(user.getCurrentSession());
 			
-			//newSession.setSessionsSessionType(new ArrayList<SessionSessionType>());
-			//newSession.getSessionsSessionType().add(newSessionSessionType);
-			//newSession.setCurrentSessionSessionType(newSessionSessionType);
-			
-			// SE ACTUALIZA LA 'SESION' DEL 'USUARIO'
-			/*user.setCurrentSession(newSession);
-			user = userEao.update(user);*/
-			
 			// SE AGREGAN LOS ANEXOS A LAS COLAS
 			for (SessionCampaign sessionCampaign : user.getCurrentSession().getCurrentSessionSessionType()
 					.getSessionsCampaign()) {
-				/*for (SessionQueue sessionQueue : sessionCampaign
-						.getSessionsQueue()) {
-					String response = amiService.addQueue(sessionQueue.getQueue()
-							.getName(), peer.toString(), sessionCampaign
-							.getCampaign().getServer(), user.getSessionType()
-							.getIsPaused());
-					sessionQueue.setResponse(response);
-				}*/
 				amiService.addManyQueues(sessionCampaign.getSessionsQueue(),
 						peer.toString(), 
 						sessionCampaign.getCampaign().getServer(),user.getSessionType().getIsPaused());

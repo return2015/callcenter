@@ -24,8 +24,8 @@ import com.returnsoft.callcenter.entity.Server;
 import com.returnsoft.callcenter.entity.SessionQueue;
 import com.returnsoft.callcenter.enumeration.CallEventTypeEnum;
 import com.returnsoft.callcenter.exception.AmiException;
-import com.returnsoft.callcenter.service.local.AmiService;
-import com.returnsoft.callcenter.service.local.CallEventService;
+import com.returnsoft.callcenter.service.AmiService;
+import com.returnsoft.callcenter.service.CallEventService;
 
 
 @Stateless

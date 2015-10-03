@@ -10,9 +10,9 @@ import com.returnsoft.callcenter.enumeration.CorbaEnum;
 import com.returnsoft.callcenter.exception.CallCenterServiceNotFoundException;
 import com.returnsoft.callcenter.exception.CorbaFileNotFoundException;
 import com.returnsoft.callcenter.exception.CorbaUtilException;
-import com.returnsoft.callcenter.service.remote.AgentService;
-import com.returnsoft.callcenter.service.remote.SupervisorService;
-import com.returnsoft.callcenter.service.remote.UserService;
+import com.returnsoft.callcenter.service.AgentService;
+import com.returnsoft.callcenter.service.SupervisorService;
+import com.returnsoft.callcenter.service.UserService;
 
 public class CorbaUtil {
 

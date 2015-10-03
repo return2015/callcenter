@@ -10,9 +10,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.returnsoft.callcenter.dto.UserDto;
 import com.returnsoft.callcenter.exception.SessionTypeInvalidException;
-import com.returnsoft.callcenter.service.remote.AgentService;
-import com.returnsoft.callcenter.service.remote.SupervisorService;
-import com.returnsoft.callcenter.service.remote.UserService;
+import com.returnsoft.callcenter.service.AgentService;
+import com.returnsoft.callcenter.service.SupervisorService;
+import com.returnsoft.callcenter.service.UserService;
 import com.returnsoft.callcenter.util.FacesUtil;
 
 @ManagedBean

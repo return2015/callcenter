@@ -24,7 +24,7 @@ import com.returnsoft.callcenter.entity.Session;
 import com.returnsoft.callcenter.entity.SessionCampaign;
 import com.returnsoft.callcenter.entity.User;
 import com.returnsoft.callcenter.exception.ServiceException;
-import com.returnsoft.callcenter.service.local.ReportService;
+import com.returnsoft.callcenter.service.ReportService;
 
 @Stateless
 public class ReportServiceImpl implements ReportService {

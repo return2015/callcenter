@@ -1,4 +1,4 @@
-package com.returnsoft.callcenter.service.remote;
+package com.returnsoft.callcenter.service;
 
 import java.util.List;
 

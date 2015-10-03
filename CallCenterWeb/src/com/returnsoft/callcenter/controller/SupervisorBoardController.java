@@ -9,6 +9,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.validation.constraints.NotNull;
 
 import com.returnsoft.callcenter.dto.CampaignDto;
 import com.returnsoft.callcenter.dto.ServerDto;
@@ -18,9 +19,9 @@ import com.returnsoft.callcenter.enumeration.SessionTypeEnum;
 import com.returnsoft.callcenter.enumeration.UserTypeEnum;
 import com.returnsoft.callcenter.exception.UserLoggedNotFoundException;
 import com.returnsoft.callcenter.exception.UserPermissionNotFoundException;
-import com.returnsoft.callcenter.service.remote.AgentService;
-import com.returnsoft.callcenter.service.remote.SupervisorService;
-import com.returnsoft.callcenter.service.remote.UserService;
+import com.returnsoft.callcenter.service.AgentService;
+import com.returnsoft.callcenter.service.SupervisorService;
+import com.returnsoft.callcenter.service.UserService;
 import com.returnsoft.callcenter.util.FacesUtil;
 
 @ManagedBean
@@ -43,6 +44,8 @@ public class SupervisorBoardController implements Serializable {
 	private String supervisorSelected;
 	
 	private List<SelectItem> sessionTypes;
+	
+	//@NotNull(message="Debe seleccionar estado")
 	private String sessionTypeSelected;
 	
 	private List<SelectItem> servers;
@@ -50,7 +53,9 @@ public class SupervisorBoardController implements Serializable {
 	
 	private List<UserDto> users;
 	
+	//@NotNull(message="Debe seleccionar usuario")
 	private Integer userId;
+	
 	private String name;
 	
 	private Boolean serverRendered;
@@ -397,7 +402,7 @@ public class SupervisorBoardController implements Serializable {
 	
 	public void beforeChangeState(Integer userId, String names){
 		
-		//System.out.println("ingreso a beforeChangeState");
+		System.out.println("ingreso a beforeChangeState");
 		try {
 			
 			sessionTypes = new ArrayList<SelectItem>();
@@ -448,21 +453,28 @@ public class SupervisorBoardController implements Serializable {
 	}
 	
 	public void changeState(){
-		//System.out.println("Ingreso a changeState");
+		System.out.println("Ingreso a changeState");
 		
 		try {
+			
+			/*RequestContext reqCtx = RequestContext.getCurrentInstance();
+	        reqCtx.addCallbackParam("chartData", new Gson().toJson(output));*/
+	        
 			if (userId!=null && userId>0) {
 				if (sessionTypeSelected!=null && sessionTypeSelected.trim().length()>0) {
+					System.out.println("sessionTypeSelected:"+sessionTypeSelected);
 					agentService.changeSessionType(userId,
 							Short.parseShort(sessionTypeSelected));
 					facesUtil.sendConfirmMessage("Se cambió el estado a "+name, "");
 					userId=null;
 					name=null;
 				}else{
+					System.out.println("Debe seleccionar un estado");
 					facesUtil.sendErrorMessage("Debe seleccionar un estado", "");	
 				}
 				
 			}else{
+				System.out.println("Debe seleccionar un usuario");
 				facesUtil.sendErrorMessage("Debe seleccionar un usuario", "");
 			}
 			
