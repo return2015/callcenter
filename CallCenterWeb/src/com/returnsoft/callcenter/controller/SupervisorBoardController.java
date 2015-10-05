@@ -624,14 +624,15 @@ public void beforeChangeCampaign(Integer userId, String names){
 					String campaignsStringSelected="";
 					for (String campaignSelected : campaignsSelected) {
 						campaignsShortSelected.add(Short.parseShort(campaignSelected));
-						campaignsStringSelected += " " + campaignsStringSelected + " ";
+						SelectItem item = campaigns.get(Integer.parseInt(campaignSelected)-1);
+						campaignsStringSelected += " " + item.getLabel() + " ";
 					}
 					
 					agentService.changeCampaigns(userId,campaignsShortSelected);
 					
 					//SessionTypeEnum ste = SessionTypeEnum.findById(Short.parseShort(sessionTypeSelected));
 					facesUtil.sendConfirmMessage(name+" se cambió a la campaña "+campaignsStringSelected, "");
-					sessionTypeSelected=null;
+					campaignsSelected=null;
 					/*userId=null;
 					name=null;*/
 					search();

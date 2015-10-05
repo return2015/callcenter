@@ -599,22 +599,25 @@ public class AgentServiceImpl implements AgentService {
 			}
 			
 			//VERIFICA QUE EXISTA AL MENOS UNA CAMPAÑA
+			System.out.println("VERIFICA QUE AL MENOS TENGA UNA CAMPAÑA");
 			if (campaignsId==null || campaignsId.size()==0) {
 				throw new CampaignRequiredException();
 			}
 			
 			// VERIFICA QUE LAS EXISTAN LAS CAMPAÑAS 
+			System.out.println("VERIFICA QUE LAS EXISTAN LAS CAMPAÑAS");
 			List<Campaign> campaigns = new ArrayList<Campaign>();
 			for (Short campaignId : campaignsId) {
 				Campaign campaign = campaignEao.findById(campaignId);
 				if (campaign!=null && campaign.getId()>0) {
-					campaigns.addAll(campaigns);
+					campaigns.add(campaign);
 				}else{
 					throw new CampaignNotFoundException(campaignId);
 				}
 			}
 			
 			// VERIFICA QUE TODAS LAS CAMPAÑAS TENGAN EL MISMO SERVIDOR
+			System.out.println("VERIFICA QUE TODAS LAS CAMPAÑAS TENGAN EL MISMO SERVIDOR");
 			Server server = campaigns.get(0).getServer();
 			for (Campaign campaign : campaigns) {
 				if (!campaign.getServer().getId().equals(server.getId())) {
@@ -623,14 +626,17 @@ public class AgentServiceImpl implements AgentService {
 			}
 			
 			//CIERRA SESIONES
+			System.out.println("CIERRA SESIONES");
 			closeSessions(user);
 			
 			//ACTUALIZA CAMPAÑAS DE USUARIO
+			System.out.println("ACTUALIZA CAMPAÑAS DE USUARIO");
 			user.setCampaigns(campaigns);
 			user.setSessionType(SessionTypeEnum.AVAILABLE);
 			userEao.update(user);
 			
 			//INICIA NUEVA SESION
+			System.out.println("INICIA NUEVA SESION");
 			openSessions(user, host, peer);
 			
 			

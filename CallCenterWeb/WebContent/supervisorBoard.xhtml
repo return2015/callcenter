@@ -225,7 +225,6 @@
 					      	<h:messages id="changeCampaignMessage" showDetail="true"></h:messages>
 					        
 							<h:selectManyListbox  id="selectCampaign" value="#{supervisorBoardController.campaignsSelected}" required="true" requiredMessage="Debe seleccionar campaña" styleClass="form-control">
-								<f:selectItem itemValue="" itemLabel="Seleccione campaña"></f:selectItem>
 								<f:selectItems value="#{supervisorBoardController.campaigns2}"></f:selectItems>
 							</h:selectManyListbox>
 					        
@@ -235,7 +234,7 @@
 					        
 					        <h:commandButton id="btnChangeCampaign" styleClass="btn btn-primary" 
 					        value="Aceptar" actionListener="#{supervisorBoardController.changeCampaign}">
-					        	<f:ajax execute=":formChangeCampaign" render=":formChangeCampaign:changeCampaignMessage :formChangeCampaign:selectSessionType :formChangeCampaign:changeCampaignModalLabel :formTable:tableUsers" />
+					        	<f:ajax execute=":formChangeCampaign" render=":formChangeCampaign:changeCampaignMessage :formChangeCampaign:selectCampaign :formChangeCampaign:changeCampaignModalLabel :formTable:tableUsers" />
 					        </h:commandButton>
 					        
 					      </div>
