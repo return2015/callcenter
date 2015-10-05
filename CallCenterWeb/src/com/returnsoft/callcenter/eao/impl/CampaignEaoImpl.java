@@ -10,6 +10,7 @@ import javax.persistence.TypedQuery;
 
 import com.returnsoft.callcenter.eao.CampaignEao;
 import com.returnsoft.callcenter.entity.Campaign;
+import com.returnsoft.callcenter.entity.Server;
 import com.returnsoft.callcenter.exception.EaoException;
 
 @Stateless
@@ -33,6 +34,23 @@ public class CampaignEaoImpl implements CampaignEao {
 			throw new EaoException(e);
 		}
 	}
+	
+	@Override
+	public Campaign findById(Short campaignId) throws EaoException{
+		try {
+			
+			Campaign campaign = em.find(Campaign.class, campaignId);
+
+			return campaign;
+
+		} catch (NoResultException e) {
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new EaoException(e);
+		}
+	}
+	
 
 
 }

@@ -54,7 +54,7 @@
 									<select jsf:id="selectServer" size="1" jsf:value="#{supervisorBoardController.serverSelected}" class="form-control">
 										<f:selectItem itemValue="" itemLabel="Seleccione servidor"></f:selectItem>
 							        	<f:selectItems value="#{supervisorBoardController.servers}"></f:selectItems>
-							        	<f:ajax event="change" execute=":form:selectServer" listener="#{supervisorBoardController.changeServer}" render=":form:divSelectCampaign :form:divSelectSupervisor"></f:ajax>
+							        	<f:ajax event="change" execute=":form:selectServer" listener="#{supervisorBoardController.onChangeServer}" render=":form:divSelectCampaign :form:divSelectSupervisor"></f:ajax>
 									</select>
 								</div>			
 							</div>
@@ -65,7 +65,7 @@
 									<select jsf:id="selectCampaign" size="1" jsf:value="#{supervisorBoardController.campaignSelected}" class="form-control">
 										<f:selectItem itemValue="" itemLabel="Seleccione campaña"></f:selectItem>
 							        	<f:selectItems value="#{supervisorBoardController.campaigns}"></f:selectItems>
-							        	<f:ajax event="change" execute=":form:selectCampaign" listener="#{supervisorBoardController.changeCampaign}" render=":form:divSelectSupervisor"></f:ajax>
+							        	<f:ajax event="change" execute=":form:selectCampaign" listener="#{supervisorBoardController.onChangeCampaign}" render=":form:divSelectSupervisor"></f:ajax>
 									</select>
 								</div>			
 							</div>
@@ -97,7 +97,7 @@
 				<form jsf:id="formTable">
 					<div jsf:id="divTable" class="col-sm-12">
 					
-						<h:dataTable id="tableUsers2" styleClass="table table-hover" value="#{supervisorBoardController.users}" var="usr">
+						<h:dataTable id="tableUsers" styleClass="table table-hover" value="#{supervisorBoardController.users}" var="usr">
 						
 							<h:column>
 								<f:facet name="header">#</f:facet>
@@ -142,16 +142,16 @@
 											
 												<button jsf:id="btnChangeStateUser" type="button" class="btn btn-primary" data-toggle="modal" data-target="#changeStateModal" title="Cambiar estado">
 													<span class="glyphicon glyphicon-edit" aria-hidden="true"/>
-													<f:ajax listener="#{supervisorBoardController.beforeChangeState(usr.id,usr.firstname)}" execute="@this" render=":messages :formChangeState:selectSessionType :formChangeState:myModalLabel"/>
+													<f:ajax listener="#{supervisorBoardController.beforeChangeState(usr.id,usr.firstname)}" execute="@this" render=":messages :formChangeState:selectSessionType :formChangeState:changeStateModalLabel"/>
 												</button>
 												
 											</div>
 											
 											<div class="col-sm-4">
 											
-												<button jsf:id="btnRestartUser" class="btn btn-success" type="button" data-toggle="tooltip" data-placement="top" title="Reiniciar">
+												<button jsf:id="btnChangeCampaignUser" class="btn btn-success" type="button" data-toggle="modal" data-target="#changeCampaignModal" title="Cambiar campaña">
 													<span class="glyphicon glyphicon-refresh" aria-hidden="true"/>
-													<f:ajax listener="#{supervisorBoardController.restartUser(usr.id)}" execute="@this" render=":messages" onevent="refreshTable"/>
+													<f:ajax listener="#{supervisorBoardController.beforeChangeCampaign(usr.id,usr.firstname)}" execute="@this" render=":messages :formChangeCampaign:selectCampaign :formChangeCampaign:changeCampaignModalLabel" />
 												</button>
 											</div>	
 											
@@ -169,97 +169,25 @@
 						
 						</h:dataTable>
 					
-						
-						<table id="tableUsers" data-toggle="table" data-pagination="false">
-							
-							<thead>
-								<tr>
-									<th data-field="id" data-sortable="true">
-										#
-									</th>
-									<th data-field="agentname" data-sortable="true">
-										Agente
-									</th>
-									<th data-field="username" data-sortable="true">
-										Usuario
-									</th>
-									<th data-field="supervisor" data-sortable="true" >
-										Supervisor
-									</th>
-									<th data-field="campaign" data-sortable="true">
-										Campañas
-									</th>
-									<th data-field="state" data-sortable="true" >
-										Estado
-									</th>
-									
-									<th data-field="duration" data-sortable="true" >
-										Duración
-									</th>
-									<th data-field="total" data-sortable="true" >
-										Total
-									</th>
-									
-									<th data-field="actions">
-										Acciones
-									</th>
-									
-								</tr>
-							</thead>
-							<tbody>
-								<ui:repeat var="usr" value="#{supervisorBoardController.users}">
-									<tr>
-										<td>
-										#{usr.id}
-										</td>
-										<td>
-										#{usr.firstname} #{usr.lastname}  
-										</td>
-										<td>
-										#{usr.username}
-										</td>
-										<td>
-										#{usr.supervisor.firstname} #{usr.supervisor.lastname}
-										</td>
-										<td>
-										#{usr.currentSession.currentSessionSessionType.campaignNames}
-										</td>
-										<td>
-										#{usr.currentSession.currentSessionSessionType.sessionType.name}
-										</td>
-										<td>
-										#{usr.currentSession.currentSessionSessionType.duration}
-										</td>
-										<td>
-										#{usr.currentSession.duration}
-										</td>
-										<td>
-											
-											
-											
-										</td>
-									</tr>
-								</ui:repeat>
-							</tbody>
-						</table>
 					</div>
 					</form>
 						
 					<!-- Modal -->
 					<form jsf:id="formChangeState">
-					<div class="modal fade" id="changeStateModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+					<div class="modal fade" id="changeStateModal" tabindex="-1" role="dialog" aria-labelledby="changeStateModalLabel" aria-hidden="true">
 					  <div class="modal-dialog">
 					    <div class="modal-content">
 					    
 					      <div class="modal-header">
 					        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					        <h4 class="modal-title" jsf:id="myModalLabel">Elegir estado para #{supervisorBoardController.name}</h4>
+					        <h4 class="modal-title" jsf:id="changeStateModalLabel">Elegir estado para #{supervisorBoardController.name}</h4>
 					      </div>
 					      <div class="modal-body">
 					      
 					      	<h:messages id="changeStateMessage" showDetail="true"></h:messages>
 					        
 							<h:selectOneMenu id="selectSessionType" value="#{supervisorBoardController.sessionTypeSelected}" required="true" requiredMessage="Debe seleccionar estado" styleClass="form-control">
+								<f:selectItem itemValue="" itemLabel="Seleccione estado"></f:selectItem>
 								<f:selectItems value="#{supervisorBoardController.sessionTypes}"></f:selectItems>
 							</h:selectOneMenu>
 					        
@@ -269,7 +197,7 @@
 					        
 					        <h:commandButton id="btnChangeSessionType" styleClass="btn btn-primary" 
 					        value="Aceptar" actionListener="#{supervisorBoardController.changeState}">
-					        	<f:ajax execute=":formChangeState" render=":formChangeState:changeStateMessage :formChangeState:myModalLabel :formTable:divTable :formTable:tableUsers2" />
+					        	<f:ajax execute=":formChangeState" render=":formChangeState:changeStateMessage :formChangeState:selectSessionType :formChangeState:changeStateModalLabel :formTable:tableUsers" />
 					        </h:commandButton>
 					        
 					      </div>
@@ -281,6 +209,45 @@
 						
 					
 				</form>
+				
+				<!-- Modal -->
+					<form jsf:id="formChangeCampaign">
+					<div class="modal fade" id="changeCampaignModal" tabindex="-1" role="dialog" aria-labelledby="changeCampaignModalLabel" aria-hidden="true">
+					  <div class="modal-dialog">
+					    <div class="modal-content">
+					    
+					      <div class="modal-header">
+					        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					        <h4 class="modal-title" jsf:id="changeCampaignModalLabel">Elegir campaña para #{supervisorBoardController.name}</h4>
+					      </div>
+					      <div class="modal-body">
+					      
+					      	<h:messages id="changeCampaignMessage" showDetail="true"></h:messages>
+					        
+							<h:selectManyListbox  id="selectCampaign" value="#{supervisorBoardController.campaignsSelected}" required="true" requiredMessage="Debe seleccionar campaña" styleClass="form-control">
+								<f:selectItem itemValue="" itemLabel="Seleccione campaña"></f:selectItem>
+								<f:selectItems value="#{supervisorBoardController.campaigns2}"></f:selectItems>
+							</h:selectManyListbox>
+					        
+					      </div>
+					      <div class="modal-footer">
+					        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+					        
+					        <h:commandButton id="btnChangeCampaign" styleClass="btn btn-primary" 
+					        value="Aceptar" actionListener="#{supervisorBoardController.changeCampaign}">
+					        	<f:ajax execute=":formChangeCampaign" render=":formChangeCampaign:changeCampaignMessage :formChangeCampaign:selectSessionType :formChangeCampaign:changeCampaignModalLabel :formTable:tableUsers" />
+					        </h:commandButton>
+					        
+					      </div>
+					      
+					    </div>
+					  </div>
+					</div>
+						
+						
+					
+				</form>
+				
 			</div>
 		</ui:define>
 		<ui:define name="footer-script">

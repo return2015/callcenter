@@ -8,6 +8,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
 import com.returnsoft.callcenter.dto.AgentInfoDto;
+import com.returnsoft.callcenter.eao.CampaignEao;
 import com.returnsoft.callcenter.eao.CampaignSessionTypeEao;
 import com.returnsoft.callcenter.eao.SessionCampaignEao;
 import com.returnsoft.callcenter.eao.SessionEao;
@@ -25,6 +26,8 @@ import com.returnsoft.callcenter.entity.SessionSessionType;
 //import com.returnsoft.callcenter.entity.SessionType;
 import com.returnsoft.callcenter.entity.User;
 import com.returnsoft.callcenter.enumeration.SessionTypeEnum;
+import com.returnsoft.callcenter.exception.CampaignNotFoundException;
+import com.returnsoft.callcenter.exception.CampaignRequiredException;
 import com.returnsoft.callcenter.exception.PeerNotFoundException;
 import com.returnsoft.callcenter.exception.ServerDifferentException;
 import com.returnsoft.callcenter.exception.ServiceException;
@@ -52,6 +55,8 @@ public class AgentServiceImpl implements AgentService {
 	private SessionQueueEao sessionQueueEao;
 	@EJB
 	private SessionCampaignEao sessionCampaignEao;
+	@EJB
+	private CampaignEao campaignEao;
 	@EJB
 	private SessionSessionTypeEao sessionSessionTypeEao;
 	//@EJB
@@ -570,6 +575,75 @@ public class AgentServiceImpl implements AgentService {
 		}
 
 	}
+	
+	@Override
+	public void changeCampaigns(int userId,List<Short> campaignsId) throws ServiceException{
+		try {
+			
+			// VERIFICA QUE EXISTA EL USUARIO
+			System.out.println("VERIFICA QUE EXISTA USUARIO");
+			User user = userEao.findById(userId);
+			if (user == null) {
+				throw new UserNotFoundException();
+			}
+			
+			// VERIFICA QUE EL USUARIO TENGA UNA SESION ACTIVA
+			System.out.println("VERIFICA QUE EL USUARIO TENGA UNA SESION ACTIVA");
+			String host=null;
+			String peer=null;
+			if (user.getCurrentSession() == null) {
+				throw new SessionNoActiveException();
+			}else{
+				host=user.getCurrentSession().getCurrentSessionSessionType().getHost();
+				peer=user.getCurrentSession().getCurrentSessionSessionType().getPeer().toString();
+			}
+			
+			//VERIFICA QUE EXISTA AL MENOS UNA CAMPAÑA
+			if (campaignsId==null || campaignsId.size()==0) {
+				throw new CampaignRequiredException();
+			}
+			
+			// VERIFICA QUE LAS EXISTAN LAS CAMPAÑAS 
+			List<Campaign> campaigns = new ArrayList<Campaign>();
+			for (Short campaignId : campaignsId) {
+				Campaign campaign = campaignEao.findById(campaignId);
+				if (campaign!=null && campaign.getId()>0) {
+					campaigns.addAll(campaigns);
+				}else{
+					throw new CampaignNotFoundException(campaignId);
+				}
+			}
+			
+			// VERIFICA QUE TODAS LAS CAMPAÑAS TENGAN EL MISMO SERVIDOR
+			Server server = campaigns.get(0).getServer();
+			for (Campaign campaign : campaigns) {
+				if (!campaign.getServer().getId().equals(server.getId())) {
+					throw new ServerDifferentException();
+				}
+			}
+			
+			//CIERRA SESIONES
+			closeSessions(user);
+			
+			//ACTUALIZA CAMPAÑAS DE USUARIO
+			user.setCampaigns(campaigns);
+			user.setSessionType(SessionTypeEnum.AVAILABLE);
+			userEao.update(user);
+			
+			//INICIA NUEVA SESION
+			openSessions(user, host, peer);
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
+				throw new ServiceException(e.getMessage(), e);	
+			}else{
+				throw new ServiceException();
+			}
+		}
+	}
+
 	
 	@Override
 	public void restartAgent(int userId) throws ServiceException {

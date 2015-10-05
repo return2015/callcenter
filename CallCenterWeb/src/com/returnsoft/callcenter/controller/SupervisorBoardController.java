@@ -44,9 +44,10 @@ public class SupervisorBoardController implements Serializable {
 	private String supervisorSelected;
 	
 	private List<SelectItem> sessionTypes;
-	
-	//@NotNull(message="Debe seleccionar estado")
 	private String sessionTypeSelected;
+	
+	private List<SelectItem> campaigns2;
+	private List<String> campaignsSelected;
 	
 	private List<SelectItem> servers;
 	private String serverSelected;
@@ -95,15 +96,55 @@ public class SupervisorBoardController implements Serializable {
 				
 				
 				if (sessionBean.getUser().getUserType().equals(UserTypeEnum.ADMIN)) {
+					//ACTUALIZA SERVER
 					serverRendered=true;
-					updateServers();
+					servers = new ArrayList<SelectItem>();
+					List<ServerDto> serversDto  = userService.getAllServers();
+					if (serversDto!=null && serversDto.size()>0) {
+						for (ServerDto serverDto : serversDto) {
+							SelectItem item = new SelectItem();
+							item.setValue(serverDto.getId());
+							item.setLabel(serverDto.getName());
+							servers.add(item);
+						}
+					}
+					//ACTUALIZA USER TYPE
+					userTypes = new ArrayList<SelectItem>();
+					for (UserTypeEnum userTypeEnum : UserTypeEnum.values()) {
+						SelectItem item = new SelectItem();
+						item.setValue(userTypeEnum.getId());
+						item.setLabel(userTypeEnum.getName());
+						userTypes.add(item);
+					}
 				}else{
 					serverRendered=false;
+					//ACTUALIZA USER TYPE
+					userTypes = new ArrayList<SelectItem>();
+					for (UserTypeEnum userTypeEnum : UserTypeEnum.values()) {
+						if (!userTypeEnum.equals(UserTypeEnum.ADMIN)) {
+							SelectItem item = new SelectItem();
+							item.setValue(userTypeEnum.getId());
+							item.setLabel(userTypeEnum.getName());
+							userTypes.add(item);	
+						}
+					}
+					//ACTUALIZA CAMPAIGN
+					campaigns = new ArrayList<SelectItem>();
+					List<CampaignDto> campaignsDto = userService.findCampaignsByUser(sessionBean.getUser().getId());
+					if (campaignsDto!=null && campaignsDto.size()>0) {
+						for (CampaignDto campaignDto : campaignsDto) {
+							SelectItem item = new SelectItem();
+							item.setValue(campaignDto.getId());
+							item.setLabel(campaignDto.getName());
+							campaigns.add(item);
+						}
+					}
+					
 				}
 					
-				updateUserTypes();
+				/*updateUserTypes();
 				updateCampaigns();
-				updateSupervisors();
+				updateSupervisors();*/
 					
 					
 				sessionBean.setCurrentPage("supervisorBoard");
@@ -180,7 +221,7 @@ public class SupervisorBoardController implements Serializable {
 		}
 	}
 	
-	public void updateUserTypes(){
+	/*public void updateUserTypes(){
 		userTypes = new ArrayList<SelectItem>();
 		
 		
@@ -214,10 +255,10 @@ public class SupervisorBoardController implements Serializable {
 		}
 		
 		
-	}
+	}*/
 	
 	
-	public void updateSupervisors(){
+	/*public void updateSupervisors(){
 		
 		//System.out.println("ingreso a updateSupervisors");
 		
@@ -247,9 +288,9 @@ public class SupervisorBoardController implements Serializable {
 			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
 					e.getMessage());
 		}
-	}
+	}*/
 	
-	public void updateCampaigns(){
+	/*public void updateCampaigns(){
 		
 		try {
 			
@@ -294,9 +335,9 @@ public class SupervisorBoardController implements Serializable {
 			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
 					e.getMessage());
 		}
-	}
+	}*/
 	
-	public void updateServers(){
+	/*public void updateServers(){
 		try {
 			
 			//System.out.println("Ingreso a updateServers");
@@ -332,13 +373,99 @@ public class SupervisorBoardController implements Serializable {
 			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
 					e.getMessage());
 		}
-	}
+	}*/
 	
-	public void changeCampaign(){
+public void beforeChangeCampaign(Integer userId, String names){
+		
+		System.out.println("ingreso a beforeChangeCampaign");
 		try {
-			//System.out.println("ingreso a changeCampaign");
+			
+			
+			this.userId=userId;
+			this.name = names;
+			
+			/*if (userId!=null && userId>0) {
+				UserDto userFound = corbaUtil.getAgentService().getUser(userId);
+				if (userFound!=null && userFound.getId()>0) {
+					if (userFound.getCurrentSession()!=null && userFound.getCurrentSession().getCurrentSessionSessionType()!=null) {
+						this.userId=userId;
+						this.name = userFound.getFirstname()+" "+userFound.getLastname();
+						List<Short> campaignsId= new ArrayList<Short>();
+						for (SessionCampaignDto sessionCampaignDto : userFound.getCurrentSession().getCurrentSessionSessionType().getSessionsCampaign()) {
+								campaignsId.add(sessionCampaignDto.getCampaign().getId());
+						}
+						
+						if (campaignsId.size()>0) {*/
+			
+			SessionBean session = (SessionBean) FacesContext
+					.getCurrentInstance().getExternalContext().getSessionMap()
+					.get("sessionBean");
+	
+			List<CampaignDto> campaignsDto = null;
+			
+			switch (session.getUser().getUserType()) {
+				
+			case SUPERVISOR:
+				campaignsDto = userService.findCampaignsByUser(session.getUser().getId());
+				break;
+				
+			default:
+				break;
+				
+			}
+			
+			campaigns2 = new ArrayList<SelectItem>();
+			
+			if (campaignsDto!=null && campaignsDto.size()>0) {
+				for (CampaignDto campaignDto : campaignsDto) {
+					SelectItem item = new SelectItem();
+					item.setValue(campaignDto.getId());
+					item.setLabel(campaignDto.getName());
+					campaigns2.add(item);
+				}
+			}
+			
+						/*}
+						
+					}
+				}
+			}*/
+			
+			System.out.println("termino before change campaign con:"+campaigns2.size());
+			
+			
+		} catch (Exception e) {
+			campaigns2 = new ArrayList<SelectItem>();
+			userId=null;
+			name=null;
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
+					e.getMessage());
+		}
+		
+	}
+
+	
+	public void onChangeCampaign(){
+		try {
+			//ACTUALIZA SUPERVISORS
 			supervisorSelected=null;
-			updateSupervisors();
+			supervisors = new ArrayList<SelectItem>();
+			
+			if (campaignSelected!=null && campaignSelected.trim().length()>0) {
+				List<Short> campaignsId = new ArrayList<Short>();
+				campaignsId.add(Short.parseShort(campaignSelected));
+				List<UserDto> supervisorsDto = userService.findSupervisorsByCampaigns(campaignsId);
+				if (supervisorsDto!=null && supervisorsDto.size()>0) {
+					for (UserDto supervisorDto : supervisorsDto) {
+						SelectItem item = new SelectItem();
+						item.setValue(supervisorDto.getId());
+						item.setLabel(supervisorDto.getFirstname() + " " + supervisorDto.getLastname());
+						supervisors.add(item);
+					}
+				}
+			}
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
@@ -347,12 +474,42 @@ public class SupervisorBoardController implements Serializable {
 		
 	}
 	
-	public void changeServer(){
+	public void onChangeServer(){
 		try {
+			
+			
+			//ACTUALIZA CAMPAÑAS
+			SessionBean session = (SessionBean) FacesContext
+					.getCurrentInstance().getExternalContext().getSessionMap()
+					.get("sessionBean");
+			List<CampaignDto> campaignsDto = null;
+			switch (session.getUser().getUserType()) {
+			case ADMIN:
+				if (serverSelected!=null && serverSelected.trim().length()>0) {
+					campaignsDto = userService.findCampaignsByServer(Short.parseShort(serverSelected));
+				}
+				break;
+			case SUPERVISOR:
+				campaignsDto = userService.findCampaignsByUser(session.getUser().getId());
+				break;
+			default:
+				break;
+			}
+			
 			campaignSelected=null;
+			campaigns = new ArrayList<SelectItem>();
+			if (campaignsDto!=null && campaignsDto.size()>0) {
+				for (CampaignDto campaignDto : campaignsDto) {
+					SelectItem item = new SelectItem();
+					item.setValue(campaignDto.getId());
+					item.setLabel(campaignDto.getName());
+					campaigns.add(item);
+				}
+			}
+			//ACTUALIZA SUPERVISORES
 			supervisorSelected=null;
-			updateCampaigns();
-			updateSupervisors();
+			supervisors = new ArrayList<SelectItem>();
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
@@ -452,6 +609,51 @@ public class SupervisorBoardController implements Serializable {
 		
 	}
 	
+	public void changeCampaign(){
+		System.out.println("Ingreso a changeCampaign");
+		
+		try {
+			
+			/*RequestContext reqCtx = RequestContext.getCurrentInstance();
+	        reqCtx.addCallbackParam("chartData", new Gson().toJson(output));*/
+	        
+			if (userId!=null && userId>0) {
+				if (campaignsSelected!=null && campaignsSelected.size()>0) {
+					//System.out.println("sessionTypeSelected:"+sessionTypeSelected);
+					List<Short> campaignsShortSelected = new ArrayList<Short>();
+					String campaignsStringSelected="";
+					for (String campaignSelected : campaignsSelected) {
+						campaignsShortSelected.add(Short.parseShort(campaignSelected));
+						campaignsStringSelected += " " + campaignsStringSelected + " ";
+					}
+					
+					agentService.changeCampaigns(userId,campaignsShortSelected);
+					
+					//SessionTypeEnum ste = SessionTypeEnum.findById(Short.parseShort(sessionTypeSelected));
+					facesUtil.sendConfirmMessage(name+" se cambió a la campaña "+campaignsStringSelected, "");
+					sessionTypeSelected=null;
+					/*userId=null;
+					name=null;*/
+					search();
+				}else{
+					System.out.println("Debe seleccionar un estado");
+					facesUtil.sendErrorMessage("Debe seleccionar un estado", "");	
+				}
+				
+			}else{
+				System.out.println("Debe seleccionar un usuario");
+				facesUtil.sendErrorMessage("Debe seleccionar un usuario", "");
+			}
+			
+		} catch (Exception e) {
+			userId=null;
+			name=null;
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
+					e.getMessage());
+		}
+	}
+	
 	public void changeState(){
 		System.out.println("Ingreso a changeState");
 		
@@ -465,9 +667,12 @@ public class SupervisorBoardController implements Serializable {
 					System.out.println("sessionTypeSelected:"+sessionTypeSelected);
 					agentService.changeSessionType(userId,
 							Short.parseShort(sessionTypeSelected));
-					facesUtil.sendConfirmMessage("Se cambió el estado a "+name, "");
-					userId=null;
-					name=null;
+					SessionTypeEnum ste = SessionTypeEnum.findById(Short.parseShort(sessionTypeSelected));
+					facesUtil.sendConfirmMessage(name+" se cambió a estado "+ste.getName(), "");
+					sessionTypeSelected=null;
+					/*userId=null;
+					name=null;*/
+					search();
 				}else{
 					System.out.println("Debe seleccionar un estado");
 					facesUtil.sendErrorMessage("Debe seleccionar un estado", "");	
@@ -602,6 +807,22 @@ public class SupervisorBoardController implements Serializable {
 
 	public void setServerRendered(Boolean serverRendered) {
 		this.serverRendered = serverRendered;
+	}
+
+	public List<String> getCampaignsSelected() {
+		return campaignsSelected;
+	}
+
+	public void setCampaignsSelected(List<String> campaignsSelected) {
+		this.campaignsSelected = campaignsSelected;
+	}
+
+	public List<SelectItem> getCampaigns2() {
+		return campaigns2;
+	}
+
+	public void setCampaigns2(List<SelectItem> campaigns2) {
+		this.campaigns2 = campaigns2;
 	}
 	
 	

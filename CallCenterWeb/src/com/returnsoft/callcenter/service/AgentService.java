@@ -18,6 +18,8 @@ public interface AgentService {
 	public void logoutAgent(int userId) throws ServiceException;
 	
 	public void restartAgent(int userId) throws ServiceException;
+	
+	public void changeCampaigns(int userId,List<Short> campaignsId) throws ServiceException;
 
 	// ///////
 
