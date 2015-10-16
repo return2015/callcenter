@@ -387,7 +387,7 @@ public class AgentServiceImpl implements AgentService {
 			String peerName = amiService.searchPeer(host,server);
 			if (peerName == null) {
 				throw new PeerNotFoundException(host,server.getName());
-			}	
+			}
 			
 			// VERIFICA SI LA SESIÓN EXISTE
 			if (user.getCurrentSession() == null) {
@@ -404,14 +404,11 @@ public class AgentServiceImpl implements AgentService {
 						openSessions(user, host, peerName);
 					}
 				}else{
-					
 					//REALIZA LOGOUT
 					closeSessions(user);
 					//CREA SESION
 					openSessions(user, host, peerName);
-					
 				}
-				
 			}
 			
 			
