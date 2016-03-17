@@ -14,6 +14,8 @@ public interface AgentService {
 			throws ServiceException;
 
 	public void loginAgent(int userId, String host) throws ServiceException;
+	
+	public void loginAgent2(int userId, String anexo) throws ServiceException;
 
 	public void logoutAgent(int userId) throws ServiceException;
 	

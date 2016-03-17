@@ -69,8 +69,12 @@ public class LoginController implements Serializable {
 
 			// BUSCA USUARIO
 			UserDto user = null;
-
-			user = userService.loginUser(username, password);
+			
+			String usuario = username.substring(0,username.indexOf("/"));
+			String anexo =username.substring(username.indexOf("/")+1,username.length());
+			System.out.println(usuario);
+			System.out.println(anexo);
+			user = userService.loginUser(usuario, password);
 			
 			SessionBean sessionBean = null;
 
@@ -100,15 +104,16 @@ public class LoginController implements Serializable {
 				return "supervisorBoard?faces-redirect=true";
 
 			case AGENT:
-				HttpServletRequest request = (HttpServletRequest) FacesContext
+				/*HttpServletRequest request = (HttpServletRequest) FacesContext
 						.getCurrentInstance().getExternalContext().getRequest();
-				String host = request.getRemoteAddr();
-				if (host.equals("127.0.0.1") || host.equals("0:0:0:0:0:0:0:1")) {
+				String host = request.getRemoteAddr();*/
+				
+				//if (host.equals("127.0.0.1") || host.equals("0:0:0:0:0:0:0:1")) {
 					//host = "192.168.23.253";
-					host = "172.28.0.23";
-				}
+					//host = "172.28.0.23";
+				//}
 
-				agentService.loginAgent(user.getId(), host);
+				agentService.loginAgent2(user.getId(),anexo);
 
 				sessionBean = new SessionBean();
 				sessionBean.setUser(user);
@@ -117,6 +122,7 @@ public class LoginController implements Serializable {
 				FacesContext.getCurrentInstance().getExternalContext()
 						.getSessionMap().put("sessionBean", sessionBean);
 				
+				//return null;
 				return "agentBoard?faces-redirect=true";
 
 
